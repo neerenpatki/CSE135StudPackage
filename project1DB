@@ -30,6 +30,12 @@ CREATE TABLE hasProduct (
 	product		INTEGER REFERENCES products (id) NOT NULL
 );
 
+CREATE TRIGGER username_trigger
+BEFORE INSERT ON owners 
+BEGIN
+IF username = ""
+THEN username = NULL
+
 DELETE FROM owners WHERE TRUE
 
 
