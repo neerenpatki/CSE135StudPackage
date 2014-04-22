@@ -1,59 +1,82 @@
-<%@page import="java.util.*, student.*" %>
 <html>
 
-    <%-- Initialization of students and nextPID --%>
-    <% if(application.getAttribute("students")==null) 
-         application.setAttribute("students", new LinkedHashMap<Integer, Student>());
-       if(application.getAttribute("nextPID")==null)
-         application.setAttribute("nextPID", 0);
-    %>    
+<body>
+<table>
+    <tr>
+        <td valign="top">
+            <%-- -------- Include menu HTML code -------- --%>
+            <jsp:include page="../menu.html" />
+        </td>
+        <td>
+            <%-- Import the java.sql package --%>
+            <%@ page import="java.sql.*"%>
+            <%-- -------- Open Connection Code -------- --%>
+            <%
+            
+            Connection conn = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            
+            try {
+                // Registering Postgresql JDBC driver with the DriverManager
+                Class.forName("org.postgresql.Driver");
 
-    <%-- -------- Retrieval code (already initialized students and nextPID) -------- --%>
-    <% 
-        // retrieves student data from application scope
-        LinkedHashMap<Integer, Student> students = (LinkedHashMap<Integer, Student>)application.getAttribute("students");
-    
-        // retrieves the latest pid
-        Integer nextPID = (Integer)(application.getAttribute("nextPID"));
-    %>
+                // Open a connection to the database using DriverManager
+                conn = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost/cse135?" +
+                    "user=postgres&password=postgres");
+            %>
+            
+            <%-- -------- INSERT Code -------- --%>
+            <%
+                String action = request.getParameter("action");
+                // Check if an insertion is requested
+                if (action != null && action.equals("insert")) {
 
-    <% String action = request.getParameter("action"); %>
+                    // Begin transaction
+                    conn.setAutoCommit(false);
 
-    <%-- -------- INSERT Code -------- --%>
-    <%       
-       // Check if an insertion is requested
-       if (action != null && action.equals("insert")) {
-                    
-          // make new student to add to students map
-       	Student newStudent = new Student();
-                    
-          // add the attributes from the request object to new student
-           newStudent.setPID(Integer.parseInt(request.getParameter("pid")));
-           newStudent.setFirstName(request.getParameter("first"));
-           newStudent.setMiddleName(request.getParameter("middle"));
-           newStudent.setLastName(request.getParameter("last"));
-                    
-          // add new student to the map
-           students.put(nextPID,newStudent);
-           nextPID++;
-           application.setAttribute("nextPID", nextPID);
-         }
-     %>
+                    // Create the prepared statement and use it to
+                    // INSERT student values INTO the students table.
+                    pstmt = conn
+                    .prepareStatement("INSERT INTO students (pid, first_name, middle_name, last_name) VALUES (?, ?, ?, ?)");
+
+                    pstmt.setInt(1, Integer.parseInt(request.getParameter("pid")));
+                    pstmt.setString(2, request.getParameter("first"));
+                    pstmt.setString(3, request.getParameter("middle"));
+                    pstmt.setString(4, request.getParameter("last"));
+                    int rowCount = pstmt.executeUpdate();
+
+                    // Commit transaction
+                    conn.commit();
+                    conn.setAutoCommit(true);
+                }
+            %>
             
             <%-- -------- UPDATE Code -------- --%>
             <%
                 // Check if an update is requested
                 if (action != null && action.equals("update")) {
 
-                    // get student that needs to be updated
-                    Student updateStudent = students.get(Integer.parseInt(request.getParameter("id")));
-                    
-                    // add the attributes from the request object to new student
-                    updateStudent.setPID(Integer.parseInt(request.getParameter("pid")));
-                    updateStudent.setFirstName(request.getParameter("first"));
-                    updateStudent.setMiddleName(request.getParameter("middle"));
-                    updateStudent.setLastName(request.getParameter("last"));
+                    // Begin transaction
+                    conn.setAutoCommit(false);
 
+                    // Create the prepared statement and use it to
+                    // UPDATE student values in the Students table.
+                    pstmt = conn
+                        .prepareStatement("UPDATE students SET pid = ?, first_name = ?, "
+                            + "middle_name = ?, last_name = ? WHERE id = ?");
+
+                    pstmt.setInt(1, Integer.parseInt(request.getParameter("pid")));
+                    pstmt.setString(2, request.getParameter("first"));
+                    pstmt.setString(3, request.getParameter("middle"));
+                    pstmt.setString(4, request.getParameter("last"));
+                    pstmt.setInt(5, Integer.parseInt(request.getParameter("id")));
+                    int rowCount = pstmt.executeUpdate();
+
+                    // Commit transaction
+                    conn.commit();
+                    conn.setAutoCommit(true);
                 }
             %>
             
@@ -61,21 +84,34 @@
             <%
                 // Check if a delete is requested
                 if (action != null && action.equals("delete")) {
-                    
-                    // remove the student at the given id
-                    students.remove(Integer.parseInt(request.getParameter("id")));
+
+                    // Begin transaction
+                    conn.setAutoCommit(false);
+
+                    // Create the prepared statement and use it to
+                    // DELETE students FROM the Students table.
+                    pstmt = conn
+                        .prepareStatement("DELETE FROM Students WHERE id = ?");
+
+                    pstmt.setInt(1, Integer.parseInt(request.getParameter("id")));
+                    int rowCount = pstmt.executeUpdate();
+
+                    // Commit transaction
+                    conn.commit();
+                    conn.setAutoCommit(true);
                 }
             %>
 
-<body>
-<table>
-    <tr>
-        <td valign="top">
-            <%-- -------- Include menu HTML code -------- --%>
-            <jsp:include page="menu.html" />
-        </td>
-        <td>
+            <%-- -------- SELECT Statement Code -------- --%>
+            <%
+                // Create the statement
+                Statement statement = conn.createStatement();
 
+                // Use the created statement to SELECT
+                // the student attributes FROM the Student table.
+                rs = statement.executeQuery("SELECT * FROM students");
+            %>
+            
             <!-- Add an HTML table header row to format the results -->
             <table border="1">
             <tr>
@@ -100,41 +136,38 @@
 
             <%-- -------- Iteration Code -------- --%>
             <%
-                // loop through the student data
-                Iterator it = students.entrySet().iterator();
-                while(it.hasNext()){
-                    // current element pair
-                    Map.Entry pair = (Map.Entry)it.next();
+                // Iterate over the ResultSet
+                while (rs.next()) {
             %>
 
             <tr>
                 <form action="students.jsp" method="POST">
                     <input type="hidden" name="action" value="update"/>
-                    <input type="hidden" name="id" value="<%= pair.getKey() %>"/>
+                    <input type="hidden" name="id" value="<%=rs.getInt("id")%>"/>
 
                 <%-- Get the id --%>
                 <td>
-                    <%= pair.getKey() %>
+                    <%=rs.getInt("id")%>
                 </td>
 
                 <%-- Get the pid --%>
                 <td>
-                    <input value="<%= ((Student)pair.getValue()).getPID() %>" name="pid" size="15"/>
+                    <input value="<%=rs.getInt("pid")%>" name="pid" size="15"/>
                 </td>
 
                 <%-- Get the first name --%>
                 <td>
-                    <input value="<%=((Student)pair.getValue()).getFirstName()%>" name="first" size="15"/>
+                    <input value="<%=rs.getString("first_name")%>" name="first" size="15"/>
                 </td>
 
                 <%-- Get the middle name --%>
                 <td>
-                    <input value="<%=((Student)pair.getValue()).getMiddleName()%>" name="middle" size="15"/>
+                    <input value="<%=rs.getString("middle_name")%>" name="middle" size="15"/>
                 </td>
 
                 <%-- Get the last name --%>
                 <td>
-                    <input value="<%=((Student)pair.getValue()).getLastName()%>" name="last" size="15"/>
+                    <input value="<%=rs.getString("last_name")%>" name="last" size="15"/>
                 </td>
 
                 <%-- Button --%>
@@ -142,13 +175,55 @@
                 </form>
                 <form action="students.jsp" method="POST">
                     <input type="hidden" name="action" value="delete"/>
-                    <input type="hidden" value="<%=pair.getKey() %>" name="id"/>
+                    <input type="hidden" value="<%=rs.getInt("id")%>" name="id"/>
                     <%-- Button --%>
                 <td><input type="submit" value="Delete"/></td>
                 </form>
             </tr>
+
             <%
                 }
+            %>
+
+            <%-- -------- Close Connection Code -------- --%>
+            <%
+                // Close the ResultSet
+                rs.close();
+
+                // Close the Statement
+                statement.close();
+
+                // Close the Connection
+                conn.close();
+            } catch (SQLException e) {
+
+                // Wrap the SQL exception in a runtime exception to propagate
+                // it upwards
+                throw new RuntimeException(e);
+            }
+            finally {
+                // Release resources in a finally block in reverse-order of
+                // their creation
+
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException e) { } // Ignore
+                    rs = null;
+                }
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) { } // Ignore
+                    pstmt = null;
+                }
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) { } // Ignore
+                    conn = null;
+                }
+            }
             %>
         </table>
         </td>

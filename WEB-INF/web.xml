@@ -7,20 +7,11 @@
 <web-app>
 
 	<!--  General Web Application Description -->
-	<display-name>Students as JSP</display-name>
+	<display-name>Data Entry Web App</display-name>
 
 	<description>
-		Students example, using JSP
- 	</description>
-
-	<servlet>
-		<servlet-name>student</servlet-name>
-		<jsp-file>/students.jsp</jsp-file>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>student</servlet-name>
-		<url-pattern>/student</url-pattern>
-	</servlet-mapping>
+		This application demonstrates how SQL queries are executed
+		within JSP pages
+	</description>
 
 </web-app>

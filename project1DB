@@ -1,0 +1,36 @@
+﻿CREATE TABLE owners (
+	id		SERIAL PRIMARY KEY,
+	username	TEXT NOT NULL UNIQUE,
+	age		INTEGER NOT NULL,
+	state		TEXT NOT NULL
+);
+
+CREATE TABLE categories (
+	id		SERIAL PRIMARY KEY,
+	name		TEXT NOT NULL UNIQUE,
+	description	TEXT NOT NULL
+);
+
+CREATE TABLE products (
+	id		SERIAL PRIMARY KEY,
+	name		TEXT NOT NULL,
+	SKU		INTEGER NOT NULL UNIQUE,
+	price		DOUBLE PRECISION NOT NULL
+);
+
+CREATE TABLE createCategory (
+	id		SERIAL PRIMARY KEY,
+	owner		INTEGER REFERENCES owners (id) NOT NULL,
+	category	INTEGER REFERENCES categories (id) NOT NULL
+);
+
+CREATE TABLE hasProduct (
+	id		SERIAL PRIMARY KEY,
+	category	INTEGER REFERENCES categories (id) NOT NULL,
+	product		INTEGER REFERENCES products (id) NOT NULL
+);
+
+DELETE FROM owners WHERE TRUE
+
+
+SELECT * FROM owners
