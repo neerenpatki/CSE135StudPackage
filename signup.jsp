@@ -15,7 +15,7 @@
 
                 // Open a connection to the database using DriverManager
                 conn = DriverManager.getConnection(
-                    "jdbc:postgresql://localhost/project1DB?" +
+                    "jdbc:postgresql://localhost/Project1DB?" +
                     "user=postgres&password=postgres");
     %>
 
@@ -29,19 +29,22 @@
             // INSERT student values INTO the students table.
           pstmt = conn
             .prepareStatement("INSERT INTO owners (username, age, state) VALUES (?, ?, ?)");
-          
           pstmt.setString(1, request.getParameter("username"));
           pstmt.setInt(2, Integer.parseInt(request.getParameter("age")));
           pstmt.setString(3, request.getParameter("state"));
           int rowCount = pstmt.executeUpdate();
+          out.println("You have successfully signed up.");
         }
     %>
 
-    <%} catch (SQLException e) {
-
-                // Wrap the SQL exception in a runtime exception to propagate
-                // it upwards
-                throw new RuntimeException(e);
-      } %>
+    <%} catch(Exception e){
+    
+                out.println("Your signup failed.");
+        }
+       %>
+        
+        <a href="signup.html">Return to signup page</a>
+        
+        
   </body>
 </html>
