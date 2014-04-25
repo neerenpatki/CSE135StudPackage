@@ -41,6 +41,7 @@
           conn.commit();
           conn.setAutoCommit(true);
 
+
           out.println("You have successfully signed up.");
 
         }
@@ -52,7 +53,9 @@
         }
        %>
         
-        <a href="signup.html">Return to signup page</a>
+        <p /><a href="signup.html">Return to signup page</a>
+        
+        <p /><a href="login.html">Login</a>
         
         
   </body>
