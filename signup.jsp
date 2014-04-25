@@ -25,6 +25,9 @@
         // Check if an insertion is requested
         if (action != null && action.equals("insert")) {
 
+          // Begin transaction
+          conn.setAutoCommit(false);
+
             // Create the prepared statement and use it to
             // INSERT student values INTO the students table.
           pstmt = conn
@@ -33,6 +36,11 @@
           pstmt.setInt(2, Integer.parseInt(request.getParameter("age")));
           pstmt.setString(3, request.getParameter("state"));
           int rowCount = pstmt.executeUpdate();
+
+          // Commit transaction
+          conn.commit();
+          conn.setAutoCommit(true);
+
           out.println("You have successfully signed up.");
         }
     %>
