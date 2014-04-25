@@ -33,11 +33,11 @@
           pstmt.setInt(2, Integer.parseInt(request.getParameter("age")));
           pstmt.setString(3, request.getParameter("state"));
           int rowCount = pstmt.executeUpdate();
-<<<<<<< HEAD
 
-=======
+
+
           out.println("You have successfully signed up.");
->>>>>>> a93f3d5d5ebcb94fa23e63e53981b3b1c1a11473
+
         }
     %>
 
