@@ -29,20 +29,26 @@
             // INSERT student values INTO the students table.
           pstmt = conn
             .prepareStatement("INSERT INTO owners (username, age, state) VALUES (?, ?, ?)");
-          
           pstmt.setString(1, request.getParameter("username"));
           pstmt.setInt(2, Integer.parseInt(request.getParameter("age")));
           pstmt.setString(3, request.getParameter("state"));
           int rowCount = pstmt.executeUpdate();
+<<<<<<< HEAD
 
+=======
+          out.println("You have successfully signed up.");
+>>>>>>> a93f3d5d5ebcb94fa23e63e53981b3b1c1a11473
         }
     %>
 
-    <%} catch (SQLException e) {
-
-                // Wrap the SQL exception in a runtime exception to propagate
-                // it upwards
-                throw new RuntimeException(e);
-      } %>
+    <%} catch(Exception e){
+    
+                out.println("Your signup failed.");
+        }
+       %>
+        
+        <a href="signup.html">Return to signup page</a>
+        
+        
   </body>
 </html>
