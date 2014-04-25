@@ -36,7 +36,10 @@
         }
       %>
       <% while (rs.next()) { %>
-  <li><a href="products.jsp"><%= rs.getString("name") %><a></li>
+  <form action="products.jsp">
+    <input type="submit" name="action" value=<%= rs.getString("name") %> style="height:20px; width:100px">
+  </form>
+    <!--<a href="products.jsp" value=<%= rs.getString("name") %>><%= rs.getString("name") %><a></li>-->
 
   <%}%>
 </ul>

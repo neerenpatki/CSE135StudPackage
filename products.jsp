@@ -75,7 +75,7 @@
                     conn.setAutoCommit(true);
                 }
             %>
-            
+            //TODO
             <%-- -------- DELETE Code -------- --%>
             <%
                 // Check if a delete is requested
@@ -103,25 +103,41 @@
                 // Create the statement
                 Statement statement = conn.createStatement();
 
+                String productRequest = request.getParameter("action");
+
+                String selectSQL = "SELECT * FROM products WHERE id IN " +
+                "(SELECT product FROM hasProduct WHERE category " +
+                "IN (SELECT id FROM categories WHERE categories.name = '" + productRequest + "'))";
+
+                /*String selectSQL = "SELECT products.id, products.name, products.SKU, products.price "
+                + "FROM products, hasProduct, categories " + 
+                "WHERE categories.name = '" + productRequest + 
+                "' AND hasProduct.category = categories.id " + 
+                "AND products.id = hasProduct.product";*/
+
+                //if (action != null && action.equals("")) {
+
                 // Use the created statement to SELECT
                 // the student attributes FROM the Student table.
-                rs = statement.executeQuery("SELECT * FROM categories");
+                rs = statement.executeQuery(selectSQL);
             %>
             
             <!-- Add an HTML table header row to format the results -->
             <table border="1">
             <tr>
-                <th>Category ID</th>
-                <th>Category Name</th>
-                <th>Category Description</th>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Product SKU</th>
+                <th>Product Price</th>
             </tr>
 
             <tr>
-                <form action="categories.jsp" method="POST">
+                <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
                     <th>&nbsp;</th>
-                    <th><input value="" name="name" size="40"/></th>
-                    <th><input value="" name="description" size="80"/></th>
+                    <th><input value="" name="name" size="50"/></th>
+                    <th><input value="" name="SKU" size="30"/></th>
+                    <th><input value="" name="price" size="30"/></th>
                     <th><input type="submit" value="Insert"/></th>
                 </form>
             </tr>
@@ -133,7 +149,7 @@
             %>
 
             <tr>
-                <form action="categories.jsp" method="POST">
+                <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="update"/>
                     <input type="hidden" name="id" value="<%=rs.getInt("id")%>"/>
 
@@ -142,20 +158,25 @@
                     <%=rs.getInt("id")%>
                 </td>
 
-                <%-- Get the first name --%>
+                <%-- Get the product name --%>
                 <td>
-                    <input value="<%=rs.getString("name")%>" name="name" size="40"/>
+                    <input value="<%=rs.getString("name")%>" name="name" size="50"/>
                 </td>
 
-                <%-- Get the middle name --%>
+                <%-- Get the product SKU --%>
                 <td>
-                    <input value="<%=rs.getString("description")%>" name="description" size="80"/>
+                    <input value="<%=rs.getString("SKU")%>" name="SKU" size="30"/>
+                </td>
+
+                <%-- Get the product price --%>
+                <td>
+                    <input value="<%=rs.getDouble("price")%>" name="price" size="30"/>
                 </td>
 
                 <%-- Button --%>
                 <td><input type="submit" value="Update"></td>
                 </form>
-                <form action="categories.jsp" method="POST">
+                <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="delete"/>
                     <input type="hidden" value="<%=rs.getInt("id")%>" name="id"/>
                     <%-- Button --%>
@@ -181,8 +202,8 @@
 
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
-                out.println("Unable to perform operation specified on category.");
-                //throw new RuntimeException(e);
+                //out.println("Unable to perform operation specified on product.");
+                throw new RuntimeException(e);
             }
             finally {
                 // Release resources in a finally block in reverse-order of

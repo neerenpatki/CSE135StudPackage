@@ -38,5 +38,31 @@ THEN username = NULL
 
 DELETE FROM owners WHERE TRUE
 
-
 SELECT * FROM owners
+
+DELETE FROM owners
+
+
+SELECT * FROM categories
+
+SELECT * FROM products
+
+SELECT * FROM hasProduct
+
+SELECT * FROM products WHERE id IN 
+(SELECT product FROM hasProduct WHERE category 
+IN (SELECT id FROM categories WHERE name = 'cat2'))
+
+SELECT products.id, products.name, products.SKU, products.price 
+FROM products, hasProduct, categories 
+WHERE categories.name = 'cat2'
+AND hasProduct.category = categories.id 
+AND products.id = hasProduct.product
+
+INSERT INTO products (name, SKU, price) VALUES ('prod1', 1, 1);
+INSERT INTO products (name, SKU, price) VALUES ('prod2', 2, 2);
+INSERT INTO products (name, SKU, price) VALUES ('prod3', 3, 3);
+
+INSERT INTO hasProduct (category, product) VALUES (9,1);
+INSERT INTO hasProduct (category, product) VALUES (10,2);
+INSERT INTO hasProduct (category, product) VALUES (11,3);
