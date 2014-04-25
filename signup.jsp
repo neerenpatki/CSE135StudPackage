@@ -15,7 +15,7 @@
 
                 // Open a connection to the database using DriverManager
                 conn = DriverManager.getConnection(
-                    "jdbc:postgresql://localhost/project1DB?" +
+                    "jdbc:postgresql://localhost/Project1DB?" +
                     "user=postgres&password=postgres");
     %>
 
@@ -34,6 +34,7 @@
           pstmt.setInt(2, Integer.parseInt(request.getParameter("age")));
           pstmt.setString(3, request.getParameter("state"));
           int rowCount = pstmt.executeUpdate();
+
         }
     %>
 

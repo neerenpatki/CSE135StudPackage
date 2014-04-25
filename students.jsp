@@ -23,7 +23,7 @@
 
                 // Open a connection to the database using DriverManager
                 conn = DriverManager.getConnection(
-                    "jdbc:postgresql://localhost/cse135?" +
+                    "jdbc:postgresql://localhost/Project1DB?" +
                     "user=postgres&password=postgres");
             %>
             
