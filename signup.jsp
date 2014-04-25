@@ -48,8 +48,8 @@
     %>
 
     <%} catch(Exception e){
-    
-                out.println("Your signup failed.");
+                throw new Exception(e);
+                //out.println("Your signup failed.");
         }
        %>
         

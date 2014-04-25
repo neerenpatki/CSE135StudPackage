@@ -23,22 +23,27 @@
     <%-- -------- INSERT Code -------- --%>
     <%
         String action = request.getParameter("action");
-        // Check if an login is requested
+        // Check if a login is requested
         if (action != null && action.equals("login")) {
             String selectSQL = "SELECT username FROM owners WHERE ? = owners.username";
             pstmt = conn.prepareStatement(selectSQL);
             pstmt.setString(1, request.getParameter("username"));
             rs = pstmt.executeQuery();
-            if(rs.next()){
-                out.println("Hello "+ request.getParameter("username"));
+            // Login was successful
+            if (rs.next()) {
+                out.println("Hello " + request.getParameter("username"));
+                // Store the username in the current session
+                session.setAttribute("userSession", request.getParameter("username"));
             }
-            else{ 
-                out.println("The provided name \""+request.getParameter("username")+"\" is not known");
+            else {
+                // Login failed with specified username 
+                out.println("The provided name \"" + request.getParameter("username") +
+                 "\" is not known");
                 loginFailed = true;
             }
         }
     %>
-    <%if(loginFailed){%>
+    <%if (loginFailed) {%>
         <form method="GET" action="login.jsp">
             <input type="hidden" name="action" value="login"/>
             <b>Username:</b>
@@ -46,7 +51,7 @@
             <input type="submit" value="Login"/>
         </form>
         <form action="signup.html">
-            <input type="submit" value="signup">
+            <input type="submit" value="Sign Up">
         </form>
     <%}%>
         
