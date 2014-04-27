@@ -251,11 +251,16 @@
                 // Close the Connection
                 conn.close();
             } catch (Exception e) {
-
+                //out.println(e);
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
+                if (e.getMessage().contains("duplicate key value violates unique constraint")) {
+                    out.println("Another product already has the specified SKU number.");
+                } else if (e.getMessage().contains("For input string:")) {
+                    out.println("The product's SKU and price must be numbers.");
+                }
 
-                out.println("Unable to perform operation specified on product.");
+                out.println(" Unable to perform operation specified on product.");
                 //throw new RuntimeException(e);
             }
             finally {

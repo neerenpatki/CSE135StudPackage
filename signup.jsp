@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Sign Up Page (JSP)</title>
+    <title>Sign Up Page</title>
   </head>
   <body>
     <%@ page import="java.sql.*"%>
@@ -49,7 +49,14 @@
 
     <%} catch(Exception e){
                 //throw new Exception(e);
-                out.println("Your signup failed.");
+                //out.println(e);
+                if (e.getMessage().contains("For input string:")) {
+                    out.println("The age field must be an integer. Please try signing up again.");
+                } else if (e.getMessage().contains("duplicate key value violates unique constraint")) {
+                    out.println("The username \"" + request.getParameter("username") + "\" has already " +"been taken. Please sign up again with a different username.");
+                } else {
+                    out.println("Your signup failed.");
+                }
         }
        %>
         

@@ -66,3 +66,49 @@ INSERT INTO products (name, SKU, price) VALUES ('prod3', 3, 3);
 INSERT INTO hasProduct (category, product) VALUES (9,1);
 INSERT INTO hasProduct (category, product) VALUES (10,2);
 INSERT INTO hasProduct (category, product) VALUES (11,3);
+
+SELECT * FROM owners
+
+SELECT * FROM hasProduct
+
+SELECT * FROM products
+
+SELECT * FROM categories
+
+SELECT * FROM createCategory
+
+CREATE TABLE hasProduct (
+	id		SERIAL PRIMARY KEY,
+	category	INTEGER REFERENCES categories (id) NOT NULL,
+	product		INTEGER REFERENCES products (id) NOT NULL
+);
+
+DROP TABLE hasProduct
+
+DELETE FROM products
+DELETE FROM hasProduct
+DELETE FROM categories
+
+INSERT INTO products (name, SKU, price) VALUES ('football', 1, 1);
+INSERT INTO products (name, SKU, price) VALUES ('tv', 2, 2);
+INSERT INTO products (name, SKU, price) VALUES ('sandwich', 3, 3);
+INSERT INTO products (name, SKU, price) VALUES ('jacket', 4, 4);
+
+INSERT INTO hasProduct (category, product) VALUES (26,25);
+INSERT INTO hasProduct (category, product) VALUES (27,26);
+INSERT INTO hasProduct (category, product) VALUES (28,27);
+INSERT INTO hasProduct (category, product) VALUES (29,28);
+
+SELECT MAX(id) FROM products
+
+SELECT * FROM products WHERE id IN (SELECT product FROM hasProduct)
+
+DELETE FROM products WHERE id=34
+
+INSERT INTO categories (name, description) VALUES ('Shoes', 'shoes') RETURNING id
+
+SELECT * FROM products WHERE id IN
+                (SELECT product FROM hasProduct WHERE category
+                IN (SELECT id FROM categories WHERE categories.name = categories.name))
+
+           

@@ -12,7 +12,7 @@
             <%@ page import="java.sql.*"%>
             <%-- -------- Open Connection Code -------- --%>
             <%
-            
+            // TODO - Deal with empty strings (make names mandatory for products and categories)
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
@@ -179,10 +179,17 @@
                 // Close the Connection
                 conn.close();
             } catch (SQLException e) {
-
+                //out.println(e);
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
-                out.println("Unable to perform operation specified on category.");
+                if (e.getMessage().contains("violates foreign key constraint")) {
+                    out.println("The specified category was not deleted because there are still" +  
+                    " products associated with that category.");
+                } else if (e.getMessage().contains("duplicate key value violates unique constraint")) {
+                    out.println("A category with the specified name already exists so no new category" +
+                    " was created.");
+                }
+                out.println(" Unable to perform operation specified on category.");
                 //throw new RuntimeException(e);
             }
             finally {

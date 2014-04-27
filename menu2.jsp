@@ -1,5 +1,5 @@
 <b>Navigation Menu</b>
-<ul>
+<p />
   <%-- Import the java.sql package --%>
   <%@ page import="java.sql.*"%>
   <%-- -------- Open Connection Code -------- --%>
@@ -35,6 +35,9 @@
                 //throw new RuntimeException(e);
         }
       %>
+      <form action="categories.jsp">
+      <input type="submit" name="action" value="Categories" style="height:20px; width:100px">
+      </form>
       <form action="products.jsp">
       <input type="submit" name="action" value="All Products" style="height:20px; width:100px">
       </form>
@@ -45,4 +48,3 @@
     <!--<a href="products.jsp" value=<%= rs.getString("name") %>><%= rs.getString("name") %><a></li>-->
 
   <%}%>
-</ul>
