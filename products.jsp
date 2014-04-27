@@ -12,11 +12,13 @@
             <%@ page import="java.sql.*"%>
             <%-- -------- Open Connection Code -------- --%>
             <%
-            
+            String category = "";
+            int catID = 0;
+            int prodID = 0;
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
-            
+            String selectSQL2 = "";
             try {
                 // Registering Postgresql JDBC driver with the DriverManager
                 Class.forName("org.postgresql.Driver");
@@ -26,23 +28,48 @@
                     "jdbc:postgresql://localhost/Project1DB?" +
                     "user=postgres&password=postgres");
             %>
-            
+
             <%-- -------- INSERT Code -------- --%>
             <%
+
                 String action = request.getParameter("action");
+                category = (String)session.getAttribute("category");                
+
+                Statement statement = conn.createStatement();
+                String selectSQL = "SELECT id FROM categories" +
+                " WHERE categories.name = " + category;
+
+                rs = statement.executeQuery(selectSQL);
+
+                if (rs.next()) {
+                    catID = rs.getInt("id");
+                }
+
+                Statement insertSt = conn.createStatement();
+
                 // Check if an insertion is requested
                 if (action != null && action.equals("insert")) {
 
                     // Begin transaction
                     conn.setAutoCommit(false);
 
-                    // Create the prepared statement and use it to
-                    // INSERT student values INTO the students table.
-                    pstmt = conn
-                    .prepareStatement("INSERT INTO categories (name, description) VALUES (?, ?)");
+                    // Get the ID of the product that will be inserted
+                    String insertSQL = "INSERT INTO products (name, SKU, price) VALUES ('" + 
+                        request.getParameter("name") + "', " +
+                        request.getParameter("SKU") + ", " +
+                        request.getParameter("price") + ") RETURNING id";
+                    rs = insertSt.executeQuery(insertSQL);
 
-                    pstmt.setString(1, request.getParameter("name"));
-                    pstmt.setString(2, request.getParameter("description"));
+                    if (rs.next()) {
+                        prodID = rs.getInt("id");
+                    }                    
+
+                    pstmt = conn
+                    .prepareStatement("INSERT INTO hasProduct (category, product) VALUES (?, ?)");
+
+                    pstmt.setInt(1, catID);
+                    pstmt.setInt(2, prodID);
+
                     int rowCount = pstmt.executeUpdate();
 
                     // Commit transaction
@@ -53,6 +80,8 @@
             
             <%-- -------- UPDATE Code -------- --%>
             <%
+
+                Statement updateSt = conn.createStatement();
                 // Check if an update is requested
                 if (action != null && action.equals("update")) {
 
@@ -62,12 +91,13 @@
                     // Create the prepared statement and use it to
                     // UPDATE student values in the Students table.
                     pstmt = conn
-                        .prepareStatement("UPDATE categories SET name = ?, description = ?" +
+                        .prepareStatement("UPDATE products SET name = ?, SKU = ?, price = ?" +
                         " WHERE id = ?");
 
                     pstmt.setString(1, request.getParameter("name"));
-                    pstmt.setString(2, request.getParameter("description"));
-                    pstmt.setInt(3, Integer.parseInt(request.getParameter("id")));
+                    pstmt.setInt(2, Integer.parseInt(request.getParameter("SKU")));
+                    pstmt.setDouble(3, Double.parseDouble(request.getParameter("price")));
+                    pstmt.setInt(4, Integer.parseInt(request.getParameter("id")));
                     int rowCount = pstmt.executeUpdate();
 
                     // Commit transaction
@@ -75,9 +105,9 @@
                     conn.setAutoCommit(true);
                 }
             %>
-            //TODO
             <%-- -------- DELETE Code -------- --%>
             <%
+
                 // Check if a delete is requested
                 if (action != null && action.equals("delete")) {
 
@@ -87,10 +117,16 @@
                     // Create the prepared statement and use it to
                     // DELETE students FROM the Students table.
                     pstmt = conn
-                        .prepareStatement("DELETE FROM categories WHERE id = ?");
+                        .prepareStatement("DELETE FROM hasProduct WHERE product = ?");
 
                     pstmt.setInt(1, Integer.parseInt(request.getParameter("id")));
                     int rowCount = pstmt.executeUpdate();
+
+                    pstmt = conn
+                        .prepareStatement("DELETE FROM products WHERE id = ?");
+
+                    pstmt.setInt(1, Integer.parseInt(request.getParameter("id")));
+                    rowCount = pstmt.executeUpdate();
 
                     // Commit transaction
                     conn.commit();
@@ -98,28 +134,36 @@
                 }
             %>
 
+            <%
+
+                Statement allProdSt = conn.createStatement();
+                String allProdSQL = "SELECT * from products";
+                if (action != null && action.equals("All Products")) {
+                    session.setAttribute("category", "categories.name");
+                    rs = allProdSt.executeQuery(allProdSQL);
+                }
+
+            %>
+
             <%-- -------- SELECT Statement Code -------- --%>
             <%
                 // Create the statement
-                Statement statement = conn.createStatement();
-
+                Statement statement2 = conn.createStatement();
                 String productRequest = request.getParameter("action");
-
-                String selectSQL = "SELECT * FROM products WHERE id IN " +
+                if (!productRequest.equals("insert") && !productRequest.equals("update") &&
+                !productRequest.equals("delete") && !productRequest.equals("All Products")) {
+                    category = productRequest;
+                    session.setAttribute("category", "'" + category + "'");
+                }
+                selectSQL2 = "SELECT * FROM products WHERE id IN " +
                 "(SELECT product FROM hasProduct WHERE category " +
-                "IN (SELECT id FROM categories WHERE categories.name = '" + productRequest + "'))";
+                "IN (SELECT id FROM categories WHERE categories.name = " + (String)session.getAttribute("category") + "))";
 
-                /*String selectSQL = "SELECT products.id, products.name, products.SKU, products.price "
-                + "FROM products, hasProduct, categories " + 
-                "WHERE categories.name = '" + productRequest + 
-                "' AND hasProduct.category = categories.id " + 
-                "AND products.id = hasProduct.product";*/
-
-                //if (action != null && action.equals("")) {
 
                 // Use the created statement to SELECT
                 // the student attributes FROM the Student table.
-                rs = statement.executeQuery(selectSQL);
+                if (!productRequest.equals("All Products"))
+                    rs = statement2.executeQuery(selectSQL2);
             %>
             
             <!-- Add an HTML table header row to format the results -->
@@ -130,7 +174,7 @@
                 <th>Product SKU</th>
                 <th>Product Price</th>
             </tr>
-
+            <% if (!action.equals("All Products")) {%>
             <tr>
                 <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
@@ -141,7 +185,7 @@
                     <th><input type="submit" value="Insert"/></th>
                 </form>
             </tr>
-
+            <%}%>
             <%-- -------- Iteration Code -------- --%>
             <%
                 // Iterate over the ResultSet
@@ -194,16 +238,25 @@
                 rs.close();
 
                 // Close the Statement
+                insertSt.close();
+
+                allProdSt.close();
+
                 statement.close();
+
+                statement2.close();
+                updateSt.close();
+
 
                 // Close the Connection
                 conn.close();
-            } catch (SQLException e) {
+            } catch (Exception e) {
 
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
-                //out.println("Unable to perform operation specified on product.");
-                throw new RuntimeException(e);
+
+                out.println("Unable to perform operation specified on product.");
+                //throw new RuntimeException(e);
             }
             finally {
                 // Release resources in a finally block in reverse-order of

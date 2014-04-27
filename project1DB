@@ -27,7 +27,7 @@ CREATE TABLE createCategory (
 CREATE TABLE hasProduct (
 	id		SERIAL PRIMARY KEY,
 	category	INTEGER REFERENCES categories (id) NOT NULL,
-	product		INTEGER REFERENCES products (id) NOT NULL
+	product		INTEGER REFERENCES products (SKU) NOT NULL
 );
 
 CREATE TRIGGER username_trigger

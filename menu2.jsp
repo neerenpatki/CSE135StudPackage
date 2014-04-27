@@ -35,8 +35,11 @@
                 //throw new RuntimeException(e);
         }
       %>
+      <form action="products.jsp">
+      <input type="submit" name="action" value="All Products" style="height:20px; width:100px">
+      </form>
       <% while (rs.next()) { %>
-  <form action="products.jsp">
+    <form action="products.jsp">
     <input type="submit" name="action" value=<%= rs.getString("name") %> style="height:20px; width:100px">
   </form>
     <!--<a href="products.jsp" value=<%= rs.getString("name") %>><%= rs.getString("name") %><a></li>-->

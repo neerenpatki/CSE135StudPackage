@@ -16,6 +16,7 @@
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
+            session.setAttribute("category", "categories.name");
             
             try {
                 // Registering Postgresql JDBC driver with the DriverManager
