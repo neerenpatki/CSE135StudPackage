@@ -10,6 +10,8 @@
         <td>
             <%-- Import the java.sql package --%>
             <%@ page import="java.sql.*"%>
+            <%="Hello " + session.getAttribute("userSession") + "!"%>
+
             <%-- -------- Open Connection Code -------- --%>
             <%
             // TODO - Deal with empty strings (make names mandatory for products and categories)

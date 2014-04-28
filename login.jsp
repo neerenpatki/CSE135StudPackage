@@ -44,7 +44,7 @@
             }
         } catch (SQLException e) {
             out.println("There was a problem logging in. Please try again.");
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
         }
     %>
     <p/>
