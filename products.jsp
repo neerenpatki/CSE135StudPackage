@@ -18,6 +18,8 @@
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
+            ResultSet catRS = null;
+            ResultSet defaultValRS = null;
             String selectSQL2 = "";
             try {
                 // Registering Postgresql JDBC driver with the DriverManager
@@ -165,11 +167,16 @@
                 if (!productRequest.equals("All Products"))
                     rs = statement2.executeQuery(selectSQL2);
             %>
-            
+            <% 
+                Statement catStatement = conn.createStatement();
+                String categorySQL = "SELECT name FROM categories";
+                catRS = catStatement.executeQuery(categorySQL);
+            %>
             <!-- Add an HTML table header row to format the results -->
             <table border="1">
             <tr>
                 <th>Product ID</th>
+                <th>Category</th>
                 <th>Product Name</th>
                 <th>Product SKU</th>
                 <th>Product Price</th>
@@ -179,6 +186,14 @@
                 <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
                     <th>&nbsp;</th>
+                    <th>
+                     <SELECT NAME="category">
+                    <%
+                        while (catRS != null && catRS.next()) { %>
+                            <OPTION><%=catRS.getString("name")%></OPTION>
+                        <%}%>
+                        </SELECT>
+                    </th>
                     <th><input value="" name="name" size="50"/></th>
                     <th><input value="" name="SKU" size="30"/></th>
                     <th><input value="" name="price" size="30"/></th>
@@ -186,10 +201,16 @@
                 </form>
             </tr>
             <%}%>
+            <% 
+                //catStatement = conn.createStatement();
+                categorySQL = "SELECT name FROM categories";
+                catRS = catStatement.executeQuery(categorySQL);
+            %>
             <%-- -------- Iteration Code -------- --%>
+
             <%
                 // Iterate over the ResultSet
-                while (rs.next()) {
+                while (rs != null && rs.next()) {
             %>
 
             <tr>
@@ -200,6 +221,31 @@
                 <%-- Get the id --%>
                 <td>
                     <%=rs.getInt("id")%>
+                </td>
+
+                <%-- Get the Category --%>
+                <td>
+                     <SELECT NAME="category">
+                    <%
+                        Statement defaultSt = conn.createStatement();
+                        while (catRS != null && catRS.next()) {
+                            out.println("Entered category result set");
+                            categorySQL = "SELECT name FROM categories WHERE id IN (SELECT category FROM " + "hasProduct WHERE product = " + rs.getInt("id") + " )";
+                            defaultValRS = defaultSt.executeQuery(categorySQL);
+                            if (defaultValRS.next()) {
+                                out.println(defaultValRS.getString("name"));
+                                if  (defaultValRS.getString("name").equals(catRS.getString("name"))) { %>
+                                    <OPTION selected><%=catRS.getString("name")%></OPTION>
+                                <%} else { %>
+                                 <OPTION><%=catRS.getString("name")%></OPTION>
+
+                                <%out.println("Didn't enter if");}
+                            } else {
+                            out.println("Didn't enter");
+                        }
+                            
+                       }%>
+                        </SELECT>
                 </td>
 
                 <%-- Get the product name --%>
@@ -236,7 +282,8 @@
             <%
                 // Close the ResultSet
                 rs.close();
-
+                catRS.close();
+                //defaultValRS.close();
                 // Close the Statement
                 insertSt.close();
 
@@ -246,21 +293,24 @@
 
                 statement2.close();
                 updateSt.close();
+                catStatement.close();
+                //defaultSt.close();
 
 
                 // Close the Connection
                 conn.close();
             } catch (Exception e) {
-                //out.println(e);
+                out.println(e);
+                //throw new RuntimeException(e);
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
-                if (e.getMessage().contains("duplicate key value violates unique constraint")) {
+                /*if (e.getMessage().contains("duplicate key value violates unique constraint")) {
                     out.println("Another product already has the specified SKU number.");
                 } else if (e.getMessage().contains("For input string:")) {
                     out.println("The product's SKU and price must be numbers.");
-                }
+                }*/
 
-                out.println(" Unable to perform operation specified on product.");
+                //out.println(" Unable to perform operation specified on product.");
                 //throw new RuntimeException(e);
             }
             finally {
