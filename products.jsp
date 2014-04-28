@@ -203,14 +203,15 @@
             <%}%>
             <% 
                 //catStatement = conn.createStatement();
-                categorySQL = "SELECT name FROM categories";
-                catRS = catStatement.executeQuery(categorySQL);
+                
             %>
             <%-- -------- Iteration Code -------- --%>
 
             <%
                 // Iterate over the ResultSet
                 while (rs != null && rs.next()) {
+                categorySQL = "SELECT name FROM categories";
+                catRS = catStatement.executeQuery(categorySQL);
             %>
 
             <tr>
