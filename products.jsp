@@ -33,6 +33,7 @@
 
             <%-- -------- INSERT Code -------- --%>
             <%
+                out.println("Menu: " + request.getParameter("category"));
 
                 String action = request.getParameter("action");
                 category = (String)session.getAttribute("category");                
@@ -69,7 +70,7 @@
                     pstmt = conn
                     .prepareStatement("INSERT INTO hasProduct (category, product) VALUES (?, ?)");
 
-                    pstmt.setInt(1, catID);
+                    pstmt.setInt(1, Integer.parseInt(request.getParameter("category")));
                     pstmt.setInt(2, prodID);
 
                     int rowCount = pstmt.executeUpdate();
@@ -101,6 +102,14 @@
                     pstmt.setDouble(3, Double.parseDouble(request.getParameter("price")));
                     pstmt.setInt(4, Integer.parseInt(request.getParameter("id")));
                     int rowCount = pstmt.executeUpdate();
+
+                    pstmt = conn
+                        .prepareStatement("UPDATE hasProduct SET category = ?" +
+                        " WHERE product = ?");
+
+                    pstmt.setInt(1, Integer.parseInt(request.getParameter("category")));
+                    pstmt.setInt(2, Integer.parseInt(request.getParameter("id")));
+                    rowCount = pstmt.executeUpdate();
 
                     // Commit transaction
                     conn.commit();
@@ -169,7 +178,7 @@
             %>
             <% 
                 Statement catStatement = conn.createStatement();
-                String categorySQL = "SELECT name FROM categories";
+                String categorySQL = "SELECT name, id FROM categories";
                 catRS = catStatement.executeQuery(categorySQL);
             %>
             <!-- Add an HTML table header row to format the results -->
@@ -190,7 +199,7 @@
                      <SELECT NAME="category">
                     <%
                         while (catRS != null && catRS.next()) { %>
-                            <OPTION><%=catRS.getString("name")%></OPTION>
+                            <OPTION value=<%=catRS.getInt("id")%>><%=catRS.getString("name")%></OPTION>
                         <%}%>
                         </SELECT>
                     </th>
@@ -210,8 +219,8 @@
             <%
                 // Iterate over the ResultSet
                 while (rs != null && rs.next()) {
-                categorySQL = "SELECT name FROM categories";
-                catRS = catStatement.executeQuery(categorySQL);
+                    categorySQL = "SELECT name, id FROM categories";
+                    catRS = catStatement.executeQuery(categorySQL);
             %>
 
             <tr>
@@ -230,21 +239,17 @@
                     <%
                         Statement defaultSt = conn.createStatement();
                         while (catRS != null && catRS.next()) {
-                            out.println("Entered category result set");
                             categorySQL = "SELECT name FROM categories WHERE id IN (SELECT category FROM " + "hasProduct WHERE product = " + rs.getInt("id") + " )";
                             defaultValRS = defaultSt.executeQuery(categorySQL);
                             if (defaultValRS.next()) {
                                 out.println(defaultValRS.getString("name"));
                                 if  (defaultValRS.getString("name").equals(catRS.getString("name"))) { %>
-                                    <OPTION selected><%=catRS.getString("name")%></OPTION>
+                                    <OPTION value=<%=catRS.getInt("id")%> selected><%=catRS.getString("name")%></OPTION>
                                 <%} else { %>
-                                 <OPTION><%=catRS.getString("name")%></OPTION>
+                                 <OPTION value=<%=catRS.getInt("id")%>><%=catRS.getString("name")%></OPTION>
 
-                                <%out.println("Didn't enter if");}
-                            } else {
-                            out.println("Didn't enter");
-                        }
-                            
+                                <%}
+                            }                            
                        }%>
                         </SELECT>
                 </td>
