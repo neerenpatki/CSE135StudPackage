@@ -33,7 +33,7 @@
 
             <%-- -------- INSERT Code -------- --%>
             <%
-                out.println("Menu: " + request.getParameter("category"));
+                //out.println("Menu: " + request.getParameter("category"));
 
                 String action = request.getParameter("action");
                 category = (String)session.getAttribute("category");                
@@ -181,6 +181,24 @@
                 String categorySQL = "SELECT name, id FROM categories";
                 catRS = catStatement.executeQuery(categorySQL);
             %>
+
+
+            <%-- SEARCH Statement Code --%>
+            <%
+                if (action != null && action.equals("search")) {
+                    Statement searchSt = conn.createStatement();
+                    String searchSQL = "SELECT * FROM products WHERE name LIKE '%" + 
+                    request.getParameter("searchValue") + "%'";
+                    rs = searchSt.executeQuery(searchSQL);
+                }
+            %>
+
+            <form align="right" action="products.jsp">
+                <input type="hidden" name="action" value="search">
+                <b>Search for Products:</b>
+                <input type="text" name="searchValue" value="">
+                <input type="submit" value="Search">
+            </form>
             <!-- Add an HTML table header row to format the results -->
             <table border="1">
             <tr>
@@ -190,7 +208,7 @@
                 <th>Product SKU</th>
                 <th>Product Price</th>
             </tr>
-            <% if (!action.equals("All Products")) {%>
+            <% if (!action.equals("search")) {%>
             <tr>
                 <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
@@ -306,8 +324,8 @@
                 // Close the Connection
                 conn.close();
             } catch (Exception e) {
-                out.println(e);
-                //throw new RuntimeException(e);
+                //out.println(e);
+                throw new RuntimeException(e);
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
                 /*if (e.getMessage().contains("duplicate key value violates unique constraint")) {
