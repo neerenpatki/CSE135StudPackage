@@ -25,15 +25,17 @@
             String selectSQL2 = "";
             String addedProduct = request.getParameter("addedProduct");
 
+
             // This if statement will be entered if a product was added from product ordering page
-            if (addedProduct != null && addedProduct.equals("Add to Shopping Cart")) {
-                ArrayList<String> shoppingCart = new ArrayList<String>();
+            if (addedProduct != null) {
+                // Store product ID's in shopping cart
+                ArrayList<Integer> shoppingCart = new ArrayList<Integer>();
                 ArrayList<Integer> quantities = new ArrayList<Integer>();
-                shoppingCart = (ArrayList<String>)session.getAttribute("shoppingCart");
+                shoppingCart = (ArrayList<Integer>)session.getAttribute("shoppingCart");
                 quantities = (ArrayList<Integer>)session.getAttribute("quantities");
                 //out.println(request.getParameter("quantity"));
-                //quantities.add(Integer.parseInt(request.getParameter("quantity")));
-                shoppingCart.add((String)session.getAttribute("productName"));
+                quantities.add(Integer.parseInt(request.getParameter("quantity")));
+                shoppingCart.add((Integer)session.getAttribute("productID"));
                 session.setAttribute("shoppingCart", shoppingCart);
             }
 
@@ -155,7 +157,7 @@
 
                 <%-- Get the product name --%>
                 <td>
-                    <a href="product_order.jsp?action=<%=rs.getString("name")%>"><%=rs.getString("name")%></a>
+                    <a href="product_order.jsp?action=<%=rs.getInt("id")%>"><%=rs.getString("name")%></a>
                 </td>
 
                 <%-- Get the product SKU --%>

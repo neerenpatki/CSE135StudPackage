@@ -14,68 +14,143 @@
             <%-- -------- Open Connection Code -------- --%>
             <%
             String category = "";
+            String prodID = "";
             String prodName = "";
+            double prodPrice = 0.0;
  
-            prodName = request.getParameter("action");
+            prodID = request.getParameter("action");
 
-            ArrayList<String> shoppingCart = (ArrayList<String>)session.getAttribute("shoppingCart");
-            ArrayList<Integer> quantities = new ArrayList<Integer>();
+            ArrayList<Integer> shoppingCart = (ArrayList<Integer>)session.getAttribute("shoppingCart");
+            ArrayList<Integer> quantities = (ArrayList<Integer>)session.getAttribute("quantities");
 
-            if (prodName != null) {
-                session.setAttribute("productName", prodName);
-            %>
+            Connection conn = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            Statement statement = null;
+            
+            try {
+                // Registering Postgresql JDBC driver with the DriverManager
+                Class.forName("org.postgresql.Driver");
 
-            <table border="1">
-            <tr>
-                <th>Product Name</th>
-                <th>Product Quantity</th>
-            </tr>
-            <%-- -------- Iteration Code -------- --%>
+                // Open a connection to the database using DriverManager
+                conn = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost/Project1DB?" +
+                    "user=postgres&password=postgres");
 
-            <tr>
-                <%-- Get the name --%>
-                <td>
-                    <%=prodName%>
-                </td>
+                if (prodID != null) {
+                    statement = conn.createStatement();
 
-                <%-- Get the quantity --%>
-                <td>
-                    <input type="text" name="action" value="1"/>
-                </td>
+                    rs = statement.executeQuery("SELECT name, price FROM products WHERE id = " + prodID);
+                    if (rs.next()) {
+                        prodName = rs.getString("name");
+                        prodPrice = rs.getDouble("price");
+                    }
+                    session.setAttribute("productID", Integer.parseInt(prodID));
+                %>
 
-                <%-- Button --%>
-                <td><form action="products_browsing.jsp?action=All+Products">
-                    <input name="productName" value="<%=prodName%>"/> 
-                    <input type="submit" name="addedProduct" value="Add to Shopping Cart"/>
+                <table border="1">
+                <tr>
+                    <th>Product Name</th>
+                    <th>Product Quantity</th>
+                    <th>Product Price</th>
+                </tr>
+                <%-- -------- Iteration Code -------- --%>
+
+                <tr>
+                   
+                    <%-- Button --%>
+                    <form action="products_browsing.jsp?action=All+Products">
+                        <input type="hidden" name="addedProduct" value="<%=prodID%>"/>
+                        <td><%=prodName%></td>
+                        <td><input type="text" name="quantity" value="1"/> </td>
+                        <td><%=prodPrice%></td>
+                        <td><input type="submit" value="Add to Shopping Cart"/></td>
                     </form>
-                </td>
+                    
+                </tr>
 
-            </tr>
+            </table><p />
+            <% } %>
 
-        </table><p />
-        <% } %>
+            <h4>Products Currently in Shopping Cart:</h4>
             <!-- Add an HTML table header row to format the results -->
             <table border="1">
             <tr>
                 <th>Product Name</th>
                 <th>Product Quantity</th>
+                <th>Product Price</th>
             </tr>
             <%-- -------- Iteration Code -------- --%>
             <% if (shoppingCart != null) {
-                for (int i = 0; i < shoppingCart.size(); i++) { %>
-            <tr>
+                for (int i = 0; i < shoppingCart.size(); i++) { 
+                    rs = statement.executeQuery("SELECT name, price FROM products WHERE id = " +
+                    shoppingCart.get(i));
+                    if (rs.next()) {
 
+                %>
+                    <tr>
+                        <%-- Get the name --%>
+                        <td><%=rs.getString("name")%>
+                        </td>
 
-                <%-- Get the name --%>
-                <td><%=shoppingCart.get(i)%>
-                </td>
+                        <td><%=quantities.get(i)%></td>
 
-                <%-- Get the Category --%>
-                <td>
-                </td>
-            </tr>
-                <%}
+                        <%-- Get the price --%>
+                        <td><%=rs.getDouble("price")%>
+                        </td>
+                    </tr>
+                <%  }
+                }
             }%>
+
+            <%-- -------- Close Connection Code -------- --%>
+            <%
+                // Close the ResultSet
+                rs.close();
+
+                // Close the Statement
+                statement.close();
+
+                // Close the Connection
+                conn.close();
+            } catch (SQLException e) {
+                //out.println(e);
+                // Wrap the SQL exception in a runtime exception to propagate
+                // it upwards
+                if (e.getMessage().contains("violates foreign key constraint")) {
+                    out.println("The specified category was not deleted because there are still" +  
+                    " products associated with that category.");
+                } else if (e.getMessage().contains("duplicate key value violates unique constraint")) {
+                    out.println("A category with the specified name already exists so no new category" +
+                    " was created.");
+                }
+                out.println(" Unable to perform operation specified on category.");
+                //throw new RuntimeException(e);
+            }
+            finally {
+                // Release resources in a finally block in reverse-order of
+                // their creation
+
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException e) { } // Ignore
+                    rs = null;
+                }
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) { } // Ignore
+                    pstmt = null;
+                }
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) { } // Ignore
+                    conn = null;
+                }
+            }
+            %>
         </table>
         </td>
     </tr>

@@ -42,11 +42,11 @@
                             <jsp:param name="Owner" value="OwnerLoggedIn"/>
                         </jsp:forward>
                         // Take them to the categories page
-                    <%} else { %>// The user is a Customer
-                        ArrayList<String> shoppingCart = new ArrayList<String>();
+                    <%} else {// The user is a Customer
+                        ArrayList<Integer> shoppingCart = new ArrayList<Integer>();
                         ArrayList<Integer> quantities = new ArrayList<Integer>();
                         session.setAttribute("shoppingCart", shoppingCart);
-                        session.setAttribute("quantities", quantities);
+                        session.setAttribute("quantities", quantities);%>
                         <jsp:forward page="products_browsing.jsp?action=All+Products">
                             <jsp:param name="Customer" value="CustomerLoggedIn"/>
                         </jsp:forward>
