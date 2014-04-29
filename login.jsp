@@ -3,7 +3,8 @@
     <title>Login Page</title>
   </head>
   <body>
-    <%@ page import="java.sql.*"%>
+    <%@ page import="java.sql.*"
+    import="java.util.ArrayList" %>
     <%---------- Open Connection Code ----------%>
      <%          
         Connection conn = null;
@@ -25,7 +26,7 @@
             String action = request.getParameter("action");
             // Check if a login is requested
             if (action != null && action.equals("login")) {
-                String selectSQL = "SELECT username FROM owners WHERE ? = owners.username";
+                String selectSQL = "SELECT username, role FROM users WHERE ? = users.username";
                 pstmt = conn.prepareStatement(selectSQL);
                 pstmt.setString(1, request.getParameter("username"));
                 rs = pstmt.executeQuery();
@@ -33,7 +34,24 @@
                 if (rs.next()) {
                     out.println("Hello " + request.getParameter("username"));
                     // Store the username in the current session
-                    session.setAttribute("userSession", request.getParameter("username"));
+                    session.setAttribute("userSession", rs.getString("username"));
+                    session.setAttribute("userRole", rs.getString("role"));
+                    // The user is an Owner
+                    if (rs.getString("role").equals("Owner")) { %>
+                        <jsp:forward page="categories.jsp">
+                            <jsp:param name="Owner" value="OwnerLoggedIn"/>
+                        </jsp:forward>
+                        // Take them to the categories page
+                    <%} else { %>// The user is a Customer
+                        ArrayList<String> shoppingCart = new ArrayList<String>();
+                        ArrayList<Integer> quantities = new ArrayList<Integer>();
+                        session.setAttribute("shoppingCart", shoppingCart);
+                        session.setAttribute("quantities", quantities);
+                        <jsp:forward page="products_browsing.jsp?action=All+Products">
+                            <jsp:param name="Customer" value="CustomerLoggedIn"/>
+                        </jsp:forward>
+                        // Take them to the product browsing page
+                    <%}
                 }
                 else {
                     // Login failed with specified username 

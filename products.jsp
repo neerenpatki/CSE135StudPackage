@@ -21,6 +21,12 @@
             ResultSet catRS = null;
             ResultSet defaultValRS = null;
             String selectSQL2 = "";
+
+            if (session.getAttribute("category") == null) {
+                session.setAttribute("category", "categories.name");
+            }
+ 
+            //session.setAttribute("category", "All Products");
             try {
                 // Registering Postgresql JDBC driver with the DriverManager
                 Class.forName("org.postgresql.Driver");
@@ -36,6 +42,7 @@
                 //out.println("Menu: " + request.getParameter("category"));
 
                 String action = request.getParameter("action");
+
                 category = (String)session.getAttribute("category");                
 
                 Statement statement = conn.createStatement();
@@ -43,10 +50,10 @@
                 " WHERE categories.name = " + category;
 
                 rs = statement.executeQuery(selectSQL);
-
                 if (rs.next()) {
                     catID = rs.getInt("id");
                 }
+
 
                 Statement insertSt = conn.createStatement();
 
@@ -145,15 +152,15 @@
                 }
             %>
 
+            <%-- All Products Code --%>
             <%
-
                 Statement allProdSt = conn.createStatement();
                 String allProdSQL = "SELECT * from products";
-                if (action != null && action.equals("All Products")) {
+                if ((action != null && action.equals("All Products") || 
+                ((String)session.getAttribute("category")).equals("categories.name"))) {
                     session.setAttribute("category", "categories.name");
                     rs = allProdSt.executeQuery(allProdSQL);
                 }
-
             %>
 
             <%-- -------- SELECT Statement Code -------- --%>
@@ -161,11 +168,13 @@
                 // Create the statement
                 Statement statement2 = conn.createStatement();
                 String productRequest = request.getParameter("action");
-                if (!productRequest.equals("insert") && !productRequest.equals("update") &&
+
+                if (productRequest != null && !productRequest.equals("insert") && !productRequest.equals("update") &&
                 !productRequest.equals("delete") && !productRequest.equals("All Products")) {
                     category = productRequest;
                     session.setAttribute("category", "'" + category + "'");
                 }
+
                 selectSQL2 = "SELECT * FROM products WHERE id IN " +
                 "(SELECT product FROM hasProduct WHERE category " +
                 "IN (SELECT id FROM categories WHERE categories.name = " + (String)session.getAttribute("category") + "))";
@@ -173,8 +182,9 @@
 
                 // Use the created statement to SELECT
                 // the student attributes FROM the Student table.
-                if (!productRequest.equals("All Products"))
+                if (productRequest != null && !productRequest.equals("All Products")) {
                     rs = statement2.executeQuery(selectSQL2);
+                }
             %>
             <% 
                 Statement catStatement = conn.createStatement();
@@ -186,6 +196,7 @@
             <%-- SEARCH Statement Code --%>
             <%
                 if (action != null && action.equals("search")) {
+
                     Statement searchSt = conn.createStatement();
                     String searchSQL = "SELECT * FROM products WHERE name LIKE '%" + 
                     request.getParameter("searchValue") + "%'";
@@ -208,7 +219,7 @@
                 <th>Product SKU</th>
                 <th>Product Price</th>
             </tr>
-            <% if (!action.equals("search")) {%>
+            <% if (action != null && !action.equals("search")) {%>
             <tr>
                 <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
@@ -237,6 +248,7 @@
             <%
                 // Iterate over the ResultSet
                 while (rs != null && rs.next()) {
+
                     categorySQL = "SELECT name, id FROM categories";
                     catRS = catStatement.executeQuery(categorySQL);
             %>
@@ -260,7 +272,7 @@
                             categorySQL = "SELECT name FROM categories WHERE id IN (SELECT category FROM " + "hasProduct WHERE product = " + rs.getInt("id") + " )";
                             defaultValRS = defaultSt.executeQuery(categorySQL);
                             if (defaultValRS.next()) {
-                                out.println(defaultValRS.getString("name"));
+                                //out.println(defaultValRS.getString("name"));
                                 if  (defaultValRS.getString("name").equals(catRS.getString("name"))) { %>
                                     <OPTION value=<%=catRS.getInt("id")%> selected><%=catRS.getString("name")%></OPTION>
                                 <%} else { %>
@@ -325,7 +337,9 @@
                 conn.close();
             } catch (Exception e) {
                 //out.println(e);
-                throw new RuntimeException(e);
+                //throw new RuntimeException(e);
+                out.println("Crash");
+                out.println(session.getAttribute("category"));
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
                 /*if (e.getMessage().contains("duplicate key value violates unique constraint")) {

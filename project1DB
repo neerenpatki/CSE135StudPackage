@@ -111,4 +111,41 @@ SELECT * FROM products WHERE id IN
                 (SELECT product FROM hasProduct WHERE category
                 IN (SELECT id FROM categories WHERE categories.name = categories.name))
 
+                SELECT * FROM products
+
+DELETE FROM products
+
+DROP TABLE products
+
+DROP TABLE hasProduct
+
+DELETE FROM hasProduct
+
+SELECT * FROM hasProduct
+
+CREATE TABLE products (
+	id		SERIAL PRIMARY KEY,
+	name		TEXT NOT NULL,
+	SKU		INTEGER NOT NULL UNIQUE CHECK (SKU >= 0),
+	price		DOUBLE PRECISION NOT NULL CHECK (price >= 0)
+);
+
+
+CREATE TABLE hasProduct (
+	id		SERIAL PRIMARY KEY,
+	category	INTEGER REFERENCES categories (id) NOT NULL,
+	product		INTEGER REFERENCES products (id) NOT NULL
+);
+
+SELECT * FROM categories
+
+INSERT INTO products (name, SKU, price) VALUES ('pizza', 1, 1) RETURNING id
+INSERT INTO hasProduct (category, product) VALUES (28,14);
+
+SELECT name FROM categories WHERE id IN (SELECT category FROM hasProduct WHERE product = 21)
+
+UPDATE hasProduct SET category = 28 WHERE product = 16
+
+SELECT * FROM products WHERE name LIKE '%ba%'
+
            

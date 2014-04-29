@@ -31,10 +31,11 @@
             // Create the prepared statement and use it to
             // INSERT student values INTO the students table.
           pstmt = conn
-            .prepareStatement("INSERT INTO owners (username, age, state) VALUES (?, ?, ?)");
+            .prepareStatement("INSERT INTO users (username, age, state, role) VALUES (?, ?, ?, ?)");
           pstmt.setString(1, request.getParameter("username"));
           pstmt.setInt(2, Integer.parseInt(request.getParameter("age")));
           pstmt.setString(3, request.getParameter("state"));
+          pstmt.setString(4, request.getParameter("role"));
           int rowCount = pstmt.executeUpdate();
 
           // Commit transaction
