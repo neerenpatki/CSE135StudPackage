@@ -18,15 +18,7 @@
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
-            ResultSet catRS = null;
-            ResultSet defaultValRS = null;
             String selectSQL2 = "";
-
-            if (session.getAttribute("category") == null) {
-                session.setAttribute("category", "categories.name");
-            }
- 
-            //session.setAttribute("category", "All Products");
             try {
                 // Registering Postgresql JDBC driver with the DriverManager
                 Class.forName("org.postgresql.Driver");
@@ -39,10 +31,8 @@
 
             <%-- -------- INSERT Code -------- --%>
             <%
-                //out.println("Menu: " + request.getParameter("category"));
 
                 String action = request.getParameter("action");
-
                 category = (String)session.getAttribute("category");                
 
                 Statement statement = conn.createStatement();
@@ -50,10 +40,10 @@
                 " WHERE categories.name = " + category;
 
                 rs = statement.executeQuery(selectSQL);
+
                 if (rs.next()) {
                     catID = rs.getInt("id");
                 }
-
 
                 Statement insertSt = conn.createStatement();
 
@@ -77,7 +67,7 @@
                     pstmt = conn
                     .prepareStatement("INSERT INTO hasProduct (category, product) VALUES (?, ?)");
 
-                    pstmt.setInt(1, Integer.parseInt(request.getParameter("category")));
+                    pstmt.setInt(1, catID);
                     pstmt.setInt(2, prodID);
 
                     int rowCount = pstmt.executeUpdate();
@@ -109,14 +99,6 @@
                     pstmt.setDouble(3, Double.parseDouble(request.getParameter("price")));
                     pstmt.setInt(4, Integer.parseInt(request.getParameter("id")));
                     int rowCount = pstmt.executeUpdate();
-
-                    pstmt = conn
-                        .prepareStatement("UPDATE hasProduct SET category = ?" +
-                        " WHERE product = ?");
-
-                    pstmt.setInt(1, Integer.parseInt(request.getParameter("category")));
-                    pstmt.setInt(2, Integer.parseInt(request.getParameter("id")));
-                    rowCount = pstmt.executeUpdate();
 
                     // Commit transaction
                     conn.commit();
@@ -152,15 +134,15 @@
                 }
             %>
 
-            <%-- All Products Code --%>
             <%
+
                 Statement allProdSt = conn.createStatement();
                 String allProdSQL = "SELECT * from products";
-                if ((action != null && action.equals("All Products") || 
-                ((String)session.getAttribute("category")).equals("categories.name"))) {
+                if (action != null && action.equals("All Products")) {
                     session.setAttribute("category", "categories.name");
                     rs = allProdSt.executeQuery(allProdSQL);
                 }
+
             %>
 
             <%-- -------- SELECT Statement Code -------- --%>
@@ -168,13 +150,11 @@
                 // Create the statement
                 Statement statement2 = conn.createStatement();
                 String productRequest = request.getParameter("action");
-
-                if (productRequest != null && !productRequest.equals("insert") && !productRequest.equals("update") &&
+                if (!productRequest.equals("insert") && !productRequest.equals("update") &&
                 !productRequest.equals("delete") && !productRequest.equals("All Products")) {
                     category = productRequest;
                     session.setAttribute("category", "'" + category + "'");
                 }
-
                 selectSQL2 = "SELECT * FROM products WHERE id IN " +
                 "(SELECT product FROM hasProduct WHERE category " +
                 "IN (SELECT id FROM categories WHERE categories.name = " + (String)session.getAttribute("category") + "))";
@@ -182,56 +162,22 @@
 
                 // Use the created statement to SELECT
                 // the student attributes FROM the Student table.
-                if (productRequest != null && !productRequest.equals("All Products")) {
+                if (!productRequest.equals("All Products"))
                     rs = statement2.executeQuery(selectSQL2);
-                }
             %>
-            <% 
-                Statement catStatement = conn.createStatement();
-                String categorySQL = "SELECT name, id FROM categories";
-                catRS = catStatement.executeQuery(categorySQL);
-            %>
-
-
-            <%-- SEARCH Statement Code --%>
-            <%
-                if (action != null && action.equals("search")) {
-
-                    Statement searchSt = conn.createStatement();
-                    String searchSQL = "SELECT * FROM products WHERE name LIKE '%" + 
-                    request.getParameter("searchValue") + "%'";
-                    rs = searchSt.executeQuery(searchSQL);
-                }
-            %>
-
-            <form align="right" action="products.jsp">
-                <input type="hidden" name="action" value="search">
-                <b>Search for Products:</b>
-                <input type="text" name="searchValue" value="">
-                <input type="submit" value="Search">
-            </form>
-            <!-- Add an HTML table header row to format the results -->
+            
             <table border="1">
             <tr>
                 <th>Product ID</th>
-                <th>Category</th>
                 <th>Product Name</th>
                 <th>Product SKU</th>
                 <th>Product Price</th>
             </tr>
-            <% if (action != null && !action.equals("search")) {%>
+            <% if (!action.equals("All Products")) {%>
             <tr>
                 <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
                     <th>&nbsp;</th>
-                    <th>
-                     <SELECT NAME="category">
-                    <%
-                        while (catRS != null && catRS.next()) { %>
-                            <OPTION value=<%=catRS.getInt("id")%>><%=catRS.getString("name")%></OPTION>
-                        <%}%>
-                        </SELECT>
-                    </th>
                     <th><input value="" name="name" size="50"/></th>
                     <th><input value="" name="SKU" size="30"/></th>
                     <th><input value="" name="price" size="30"/></th>
@@ -239,18 +185,10 @@
                 </form>
             </tr>
             <%}%>
-            <% 
-                //catStatement = conn.createStatement();
-                
-            %>
             <%-- -------- Iteration Code -------- --%>
-
             <%
                 // Iterate over the ResultSet
-                while (rs != null && rs.next()) {
-
-                    categorySQL = "SELECT name, id FROM categories";
-                    catRS = catStatement.executeQuery(categorySQL);
+                while (rs.next()) {
             %>
 
             <tr>
@@ -261,27 +199,6 @@
                 <%-- Get the id --%>
                 <td>
                     <%=rs.getInt("id")%>
-                </td>
-
-                <%-- Get the Category --%>
-                <td>
-                     <SELECT NAME="category">
-                    <%
-                        Statement defaultSt = conn.createStatement();
-                        while (catRS != null && catRS.next()) {
-                            categorySQL = "SELECT name FROM categories WHERE id IN (SELECT category FROM " + "hasProduct WHERE product = " + rs.getInt("id") + " )";
-                            defaultValRS = defaultSt.executeQuery(categorySQL);
-                            if (defaultValRS.next()) {
-                                //out.println(defaultValRS.getString("name"));
-                                if  (defaultValRS.getString("name").equals(catRS.getString("name"))) { %>
-                                    <OPTION value=<%=catRS.getInt("id")%> selected><%=catRS.getString("name")%></OPTION>
-                                <%} else { %>
-                                 <OPTION value=<%=catRS.getInt("id")%>><%=catRS.getString("name")%></OPTION>
-
-                                <%}
-                            }                            
-                       }%>
-                        </SELECT>
                 </td>
 
                 <%-- Get the product name --%>
@@ -318,8 +235,7 @@
             <%
                 // Close the ResultSet
                 rs.close();
-                catRS.close();
-                //defaultValRS.close();
+
                 // Close the Statement
                 insertSt.close();
 
@@ -329,26 +245,21 @@
 
                 statement2.close();
                 updateSt.close();
-                catStatement.close();
-                //defaultSt.close();
 
 
                 // Close the Connection
                 conn.close();
             } catch (Exception e) {
                 //out.println(e);
-                //throw new RuntimeException(e);
-                out.println("Crash");
-                out.println(session.getAttribute("category"));
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
-                /*if (e.getMessage().contains("duplicate key value violates unique constraint")) {
+                if (e.getMessage().contains("duplicate key value violates unique constraint")) {
                     out.println("Another product already has the specified SKU number.");
                 } else if (e.getMessage().contains("For input string:")) {
                     out.println("The product's SKU and price must be numbers.");
-                }*/
+                }
 
-                //out.println(" Unable to perform operation specified on product.");
+                out.println(" Unable to perform operation specified on product.");
                 //throw new RuntimeException(e);
             }
             finally {
