@@ -237,9 +237,9 @@
             </table>
             </td>
         <%} else {
-                out.println("Please log in first!");
+                out.println("Please log in first!"); %>
                 <a href="login.html">Login</a>
-            }%>
+           <%}%>
     </tr>
 </table>
 </body>
