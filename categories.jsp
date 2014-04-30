@@ -124,7 +124,7 @@
                     <input type="hidden" name="action" value="insert"/>
                     <th>&nbsp;</th>
                     <th><input value="" name="name" size="40"/></th>
-                    <th><input value="" name="description" size="80"/></th>
+                    <th><textarea rows="2" cols ="75" value="" name="description" size="80"></textarea></th>
                     <th><input type="submit" value="Insert"/></th>
                 </form>
             </tr>
@@ -145,14 +145,14 @@
                     <%=rs.getInt("id")%>
                 </td>
 
-                <%-- Get the first name --%>
+                <%-- Get the category name --%>
                 <td>
                     <input value="<%=rs.getString("name")%>" name="name" size="40"/>
                 </td>
 
-                <%-- Get the middle name --%>
+                <%-- Get the category description --%>
                 <td>
-                    <input value="<%=rs.getString("description")%>" name="description" size="80"/>
+                    <textarea rows="2" cols="75" value="<%=rs.getString("description")%>" name="description" size="80"><%=rs.getString("description")%></textarea>
                 </td>
 
                 <%-- Button --%>

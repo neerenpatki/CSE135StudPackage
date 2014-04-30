@@ -165,6 +165,25 @@
                 if (!productRequest.equals("All Products"))
                     rs = statement2.executeQuery(selectSQL2);
             %>
+
+             <%-- SEARCH Statement Code --%>
+            <%
+                if (action != null && action.equals("search")) {
+                    Statement searchSt = conn.createStatement();
+                    String searchSQL = "SELECT * FROM products WHERE name LIKE '%" + 
+                    request.getParameter("searchValue") + "%'";
+                    rs = searchSt.executeQuery(searchSQL);
+                }
+                out.println("Hello " + session.getAttribute("userSession") + "!");
+
+            %>
+
+            <form align="right" action="products.jsp">
+                    <input type="hidden" name="action" value="search">
+                    <b>Search for Products:</b>
+                    <input type="text" name="searchValue" value="">
+                    <input type="submit" value="Search">
+            </form>
             
             <table border="1">
             <tr>
