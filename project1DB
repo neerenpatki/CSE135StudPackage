@@ -15,7 +15,7 @@ CREATE TABLE categories (
 CREATE TABLE products (
 	id		SERIAL PRIMARY KEY,
 	name		TEXT NOT NULL,
-	SKU		INTEGER NOT NULL UNIQUE,
+	SKU		INTEGER NOT NULL UNIQUE CHECK (SKU >= 0),
 	price		DOUBLE PRECISION NOT NULL CHECK (price > 0)
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE createCategory (
 CREATE TABLE hasProduct (
 	id		SERIAL PRIMARY KEY,
 	category	INTEGER REFERENCES categories (id) NOT NULL,
-	product		INTEGER REFERENCES products (SKU) NOT NULL
+	product		INTEGER REFERENCES products (id) NOT NULL
 );
 
 CREATE TRIGGER username_trigger
