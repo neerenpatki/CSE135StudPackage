@@ -28,9 +28,13 @@
             ResultSet defaultValRS = null;
             String selectSQL2 = "";
             String addedProduct = request.getParameter("addedProduct");
-
+          
+            String save = ((session.getAttribute("saved") == null) ? "" :
+                           (String)session.getAttribute("saved"));
+            
                 // This if statement will be entered if a product was added from product ordering page
-                if (addedProduct != null) {
+                if (addedProduct != null && save.equals("")) {
+                    session.setAttribute("saved", "saved");
                     // Store product ID's in shopping cart
                     ArrayList<Integer> shoppingCart = new ArrayList<Integer>();
                     ArrayList<Integer> quantities = new ArrayList<Integer>();
@@ -40,6 +44,9 @@
                     quantities.add(Integer.parseInt(request.getParameter("quantity")));
                     shoppingCart.add((Integer)session.getAttribute("productID"));
                     session.setAttribute("shoppingCart", shoppingCart);
+                }
+                else{
+                    //don't add to shopping cart
                 }
 
                 try {

@@ -29,7 +29,7 @@
             PreparedStatement pstmt = null;
             ResultSet rs = null;
             Statement statement = null;
-            
+            session.setAttribute("saved", null);
             try {
                 // Registering Postgresql JDBC driver with the DriverManager
                 Class.forName("org.postgresql.Driver");
