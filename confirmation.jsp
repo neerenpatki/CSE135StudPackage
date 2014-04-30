@@ -13,17 +13,18 @@
             <%-- Import the java.sql package --%>
             <%@ page import="java.sql.*"
             import="java.util.ArrayList"%>
-            <div align="center"><h2>Buy Shopping Cart</h2></div>
+            <div align="center"><h2>Confirmation of Order</h2></div>
             <%-- -------- Open Connection Code -------- --%>
             <%
-            
             double prodPrice = 0.0;
             double totalPrice = 0.0;
  
+
             ArrayList<Integer> shoppingCart = (ArrayList<Integer>)session.getAttribute("shoppingCart");
             ArrayList<Integer> quantities = (ArrayList<Integer>)session.getAttribute("quantities");
 
             Connection conn = null;
+            PreparedStatement pstmt = null;
             ResultSet rs = null;
             Statement statement = null;
             
@@ -40,7 +41,7 @@
 
             %>
 
-            <h4>Products Currently in Shopping Cart:</h4>
+            <h4>Order Summary:</h4>
             <!-- Add an HTML table header row to format the results -->
             <table border="1">
             <tr>
@@ -110,6 +111,12 @@
                     } catch (SQLException e) { } // Ignore
                     rs = null;
                 }
+                if (pstmt != null) {
+                    try {
+                        pstmt.close();
+                    } catch (SQLException e) { } // Ignore
+                    pstmt = null;
+                }
                 if (conn != null) {
                     try {
                         conn.close();
@@ -125,17 +132,21 @@
         <td width="30%"><b><%=totalPrice%></b></td>
         </table>
         <p />
-        <br />
-        <table border="0">
-        <tr><b>Enter in Credit Card: </b></tr>
-        <td><form action="confirmation.jsp">
-                <input type="hidden" name="action" value="purchase"/>
-                <input type="text" value=""/>
-                <input type="submit" value="Purchase"/>
-            </form></td>
-        </table>
+        <a href="products_browsing.jsp">Back to Products Browsing</a>
         </td>
     </tr>
+
+    <%
+    if (!shoppingCart.isEmpty()) {
+        shoppingCart.clear();
+        session.setAttribute("shoppingCart", shoppingCart);
+    }
+    if (!quantities.isEmpty()) {
+        quantities.clear();
+        session.setAttribute("quantities", quantities);
+    }
+
+    %>
 </table>
 </body>
 
