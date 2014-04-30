@@ -28,10 +28,14 @@
             ResultSet defaultValRS = null;
             String selectSQL2 = "";
             String addedProduct = request.getParameter("addedProduct");
+            String save = "Initialize";
+             if (session.getAttribute("category") == null) {
+                    session.setAttribute("category", "categories.name");
+                }
           
-            String save = ((session.getAttribute("saved") == null) ? "" :
+            save = ((session.getAttribute("saved") == null) ? "" :
                            (String)session.getAttribute("saved"));
-            
+
                 // This if statement will be entered if a product was added from product ordering page
                 if (addedProduct != null && save.equals("")) {
                     session.setAttribute("saved", "saved");
@@ -44,6 +48,7 @@
                     quantities.add(Integer.parseInt(request.getParameter("quantity")));
                     shoppingCart.add((Integer)session.getAttribute("productID"));
                     session.setAttribute("shoppingCart", shoppingCart);
+
                 }
                 else{
                     //don't add to shopping cart
@@ -62,11 +67,12 @@
 
                 <%-- All Products Code --%>
                 <%
+
                     action = request.getParameter("action");
                     Statement allProdSt = conn.createStatement();
                     String allProdSQL = "SELECT * from products";
-                    if ((action != null && action.equals("All Products") || 
-                    ((String)session.getAttribute("category")).equals("categories.name")) ||
+                    if ((action != null && action.equals("All Products")) || 
+                    ((String)session.getAttribute("category")).equals("categories.name") ||
                     (request.getParameter("addedProduct") != null)) {
                         //session.setAttribute("category", "categories.name");
                         rs = allProdSt.executeQuery(allProdSQL);

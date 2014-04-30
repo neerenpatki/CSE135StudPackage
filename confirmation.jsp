@@ -132,7 +132,7 @@
         <td width="30%"><b><%=totalPrice%></b></td>
         </table>
         <p />
-        <a href="products_browsing.jsp">Back to Products Browsing</a>
+        <a href="products_browsing.jsp?action=All+Products">Back to Products Browsing</a>
         </td>
     </tr>
 
