@@ -1,5 +1,7 @@
 <html>
-
+<head>
+    <title>Products Page</title>
+  </head>
 <body>
 <table>
     <tr>

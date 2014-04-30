@@ -1,5 +1,7 @@
 <html>
-
+<head>
+    <title>Categories Page</title>
+  </head>
 <body>
 <table>
     <tr>

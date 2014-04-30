@@ -1,5 +1,7 @@
 <html>
-
+<head>
+    <title>Products Browsing Page</title>
+  </head>
 <body>
 <table>
     <tr>
@@ -40,10 +42,6 @@
                     session.setAttribute("shoppingCart", shoppingCart);
                 }
 
-                if (session.getAttribute("category") == null) {
-                    session.setAttribute("category", "categories.name");
-                }
-
                 try {
                     // Registering Postgresql JDBC driver with the DriverManager
                     Class.forName("org.postgresql.Driver");
@@ -61,8 +59,9 @@
                     Statement allProdSt = conn.createStatement();
                     String allProdSQL = "SELECT * from products";
                     if ((action != null && action.equals("All Products") || 
-                    ((String)session.getAttribute("category")).equals("categories.name"))) {
-                        session.setAttribute("category", "categories.name");
+                    ((String)session.getAttribute("category")).equals("categories.name")) ||
+                    (request.getParameter("addedProduct") != null)) {
+                        //session.setAttribute("category", "categories.name");
                         rs = allProdSt.executeQuery(allProdSQL);
                     }
                 %>
@@ -101,15 +100,17 @@
                 <%-- SEARCH Statement Code --%>
                 <%
 
-                    if (action != null && action.equals("search")) {
-                        Statement searchSt = conn.createStatement();
-                        String searchSQL = "SELECT * FROM products WHERE name LIKE '%" + 
-                        request.getParameter("searchValue") + "%'";
-                        rs = searchSt.executeQuery(searchSQL);
-                    }
+                if (action != null && action.equals("search")) {
+                    Statement searchSt = conn.createStatement();
+                    String searchSQL = "SELECT * FROM products WHERE name LIKE '%" + 
+                    request.getParameter("searchValue") + "%'";
+                    rs = searchSt.executeQuery(searchSQL);
+                }
+                if (session.getAttribute("userRole").equals("Customer")) { %>
+                    <div align="right"><a href="buy_shopping_cart.jsp" align="right">Buy Shopping Cart</a></div>
+                <%}%>
 
-                 out.println("Hello " + session.getAttribute("userSession") + "!");
-                %>
+                 <div align="left">Hello <%=(String)session.getAttribute("userSession")%>!</div>
 
                 <form align="right" action="products_browsing.jsp">
                     <input type="hidden" name="action" value="search">
@@ -138,7 +139,6 @@
                         categorySQL = "SELECT name FROM categories WHERE id IN (SELECT category FROM " +
                         "hasProduct WHERE product = " + rs.getInt("id") + ")";
                         catRS = catStatement.executeQuery(categorySQL);
-
                 %>
 
                 <tr>
@@ -151,7 +151,7 @@
                     <%-- Get the Category --%>
                     <td>
                         <%
-                            while (catRS != null && catRS.next()) { %>
+                            if (catRS != null && catRS.next()) { %>
                                 <%=catRS.getString("name")%>
                            <%}%>
                     </td>

@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Product Order Page</title>
+    <title>Buy Shopping Cart Page</title>
   </head>
 <body>
 <table>
