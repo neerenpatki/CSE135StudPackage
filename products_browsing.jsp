@@ -111,7 +111,7 @@
                  out.println("Hello " + session.getAttribute("userSession") + "!");
                 %>
 
-                <form align="right" action="products.jsp">
+                <form align="right" action="products_browsing.jsp">
                     <input type="hidden" name="action" value="search">
                     <b>Search for Products:</b>
                     <input type="text" name="searchValue" value="">

@@ -5,7 +5,7 @@
     <tr>
         <td valign="top">
             <%-- -------- Include menu HTML code -------- --%>
-            <jsp:include page="menu2.jsp" />
+            <jsp:include page="pbmenu.jsp" />
         </td>
         <td>
             <%-- Import the java.sql package --%>
