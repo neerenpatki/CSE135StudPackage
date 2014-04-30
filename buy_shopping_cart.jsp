@@ -13,12 +13,14 @@
             <%-- Import the java.sql package --%>
             <%@ page import="java.sql.*"
             import="java.util.ArrayList"%>
+            <div align="center"><h2>Buy Shopping Cart</h2></div>
             <%-- -------- Open Connection Code -------- --%>
             <%
             String category = "";
             String prodID = "";
             String prodName = "";
             double prodPrice = 0.0;
+            double totalPrice = 0.0;
  
             prodID = request.getParameter("action");
 
@@ -39,40 +41,9 @@
                     "jdbc:postgresql://localhost/Project1DB?" +
                     "user=postgres&password=postgres");
 
-                if (prodID != null) {
-                    statement = conn.createStatement();
+                statement = conn.createStatement();
 
-                    rs = statement.executeQuery("SELECT name, price FROM products WHERE id = " + prodID);
-                    if (rs.next()) {
-                        prodName = rs.getString("name");
-                        prodPrice = rs.getDouble("price");
-                    }
-                    session.setAttribute("productID", Integer.parseInt(prodID));
-                %>
-
-                <table border="1">
-                <tr>
-                    <th>Product Name</th>
-                    <th>Product Quantity</th>
-                    <th>Product Price</th>
-                </tr>
-                <%-- -------- Iteration Code -------- --%>
-
-                <tr>
-                   
-                    <%-- Button --%>
-                    <form action="products_browsing.jsp?action=All+Products">
-                        <input type="hidden" name="addedProduct" value="<%=prodID%>"/>
-                        <td><%=prodName%></td>
-                        <td><input type="text" name="quantity" value="1"/> </td>
-                        <td><%=prodPrice%></td>
-                        <td><input type="submit" value="Add to Shopping Cart"/></td>
-                    </form>
-                    
-                </tr>
-
-            </table><p />
-            <% } %>
+            %>
 
             <h4>Products Currently in Shopping Cart:</h4>
             <!-- Add an HTML table header row to format the results -->
@@ -88,6 +59,7 @@
                     rs = statement.executeQuery("SELECT name, price FROM products WHERE id = " +
                     shoppingCart.get(i));
                     if (rs.next()) {
+                        totalPrice += rs.getDouble("price");
 
                 %>
                     <tr>
@@ -95,6 +67,7 @@
                         <td><%=rs.getString("name")%>
                         </td>
 
+                        <%-- Get the quantity --%>
                         <td><%=quantities.get(i)%></td>
 
                         <%-- Get the price --%>
@@ -103,7 +76,10 @@
                     </tr>
                 <%  }
                 }
-            }%>
+            }
+            // TODO potential error in product_order page (add there?)
+            rs = statement.executeQuery("SELECT * FROM products");
+            %>
 
             <%-- -------- Close Connection Code -------- --%>
             <%
@@ -153,6 +129,20 @@
                 }
             }
             %>
+        </table>
+        <p />
+        <table border="1" width="100%">
+        <td width="70%"><b>Total Price:</b></td>
+        <td width="30%"><b><%=totalPrice%></b></td>
+        </table>
+        <p />
+        <br />
+        <table border="0">
+        <tr><b>Enter in Credit Card: </b></tr>
+        <td><form action="confirmation.jsp">
+                <input type="text" value=""/>
+                <input type="submit" name="action" value="Purchase"/>
+            </form></td>
         </table>
         </td>
     </tr>

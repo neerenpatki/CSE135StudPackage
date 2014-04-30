@@ -13,6 +13,7 @@
             <%-- Import the java.sql package --%>
             <%@ page import="java.sql.*"
             import="java.util.ArrayList"%>
+            <div align="center"><h2> Product Order Page </h2></div>
             <%-- -------- Open Connection Code -------- --%>
             <%
             String category = "";
@@ -94,6 +95,8 @@
                         <%-- Get the name --%>
                         <td><%=rs.getString("name")%>
                         </td>
+
+                        <%-- Get the quantity --%>
 
                         <td><%=quantities.get(i)%></td>
 
