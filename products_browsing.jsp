@@ -3,6 +3,8 @@
 <body>
 <table>
     <tr>
+    <% if (session.getAttribute("userSession") != null) { %>
+
         <td valign="top">
             <%-- -------- Include menu HTML code -------- --%>
             <jsp:include page="pbmenu.jsp" />
@@ -25,7 +27,6 @@
             String selectSQL2 = "";
             String addedProduct = request.getParameter("addedProduct");
 
-            if (session.getAttribute("useSession") == null) {
                 // This if statement will be entered if a product was added from product ordering page
                 if (addedProduct != null) {
                     // Store product ID's in shopping cart
@@ -236,11 +237,11 @@
                 %>
             </table>
             </td>
-        <%} else {
-                out.println("Please log in first!"); %>
-                <a href="login.html">Login</a>
-           <%}%>
     </tr>
+    <%} else {
+                out.println("Please log in first!"); %>
+                <p /><a href="login.html">Login</a>
+           <%}%>
 </table>
 </body>
 
