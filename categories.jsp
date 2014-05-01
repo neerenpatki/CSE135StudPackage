@@ -20,6 +20,7 @@
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
+            boolean emptyString = false;
             session.setAttribute("category", "categories.name");
             
             try {
@@ -30,13 +31,15 @@
                 conn = DriverManager.getConnection(
                     "jdbc:postgresql://localhost/Project1DB?" +
                     "user=postgres&password=postgres");
+                if (request.getParameter("name") != null)
+                    emptyString = request.getParameter("name").equals("");
             %>
             
             <%-- -------- INSERT Code -------- --%>
             <%
                 String action = request.getParameter("action");
                 // Check if an insertion is requested
-                if (action != null && action.equals("insert")) {
+                if (action != null && action.equals("insert") && !emptyString) {
 
                     // Begin transaction
                     conn.setAutoCommit(false);
@@ -59,7 +62,7 @@
             <%-- -------- UPDATE Code -------- --%>
             <%
                 // Check if an update is requested
-                if (action != null && action.equals("update")) {
+                if (action != null && action.equals("update") && !emptyString) {
 
                     // Begin transaction
                     conn.setAutoCommit(false);
@@ -84,7 +87,7 @@
             <%-- -------- DELETE Code -------- --%>
             <%
                 // Check if a delete is requested
-                if (action != null && action.equals("delete")) {
+                if (action != null && action.equals("delete") && !emptyString) {
 
                     // Begin transaction
                     conn.setAutoCommit(false);
