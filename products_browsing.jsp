@@ -36,23 +36,6 @@
             save = ((session.getAttribute("saved") == null) ? "" :
                            (String)session.getAttribute("saved"));
 
-                // This if statement will be entered if a product was added from product ordering page
-                if (addedProduct != null && save.equals("")) {
-                    session.setAttribute("saved", "saved");
-                    // Store product ID's in shopping cart
-                    ArrayList<Integer> shoppingCart = new ArrayList<Integer>();
-                    ArrayList<Integer> quantities = new ArrayList<Integer>();
-                    shoppingCart = (ArrayList<Integer>)session.getAttribute("shoppingCart");
-                    quantities = (ArrayList<Integer>)session.getAttribute("quantities");
-                    //out.println(request.getParameter("quantity"));
-                    quantities.add(Integer.parseInt(request.getParameter("quantity")));
-                    shoppingCart.add((Integer)session.getAttribute("productID"));
-                    session.setAttribute("shoppingCart", shoppingCart);
-
-                }
-                else{
-                    //don't add to shopping cart
-                }
 
                 try {
                     // Registering Postgresql JDBC driver with the DriverManager
@@ -62,6 +45,23 @@
                     conn = DriverManager.getConnection(
                         "jdbc:postgresql://localhost/Project1DB?" +
                         "user=postgres&password=postgres");
+
+                    // This if statement will be entered if a product was added from product ordering page
+                    if (addedProduct != null && save.equals("")) {
+                        session.setAttribute("saved", "saved");
+                        // Store product ID's in shopping cart
+                        ArrayList<Integer> shoppingCart = new ArrayList<Integer>();
+                        ArrayList<Integer> quantities = new ArrayList<Integer>();
+                        shoppingCart = (ArrayList<Integer>)session.getAttribute("shoppingCart");
+                        quantities = (ArrayList<Integer>)session.getAttribute("quantities");
+                        //out.println(request.getParameter("quantity"));
+                        if (Integer.parseInt(request.getParameter("quantity")) > 0) {
+                            quantities.add(Integer.parseInt(request.getParameter("quantity")));
+                            shoppingCart.add((Integer)session.getAttribute("productID"));
+                            session.setAttribute("shoppingCart", shoppingCart);
+                        }
+
+                    }
 
                 %>
 
@@ -187,8 +187,8 @@
 
                 <%
                     }
-                    rs = statement.executeQuery("SELECT * FROM products");
-                    catRS = statement.executeQuery("SELECT * FROM products");
+                    rs = statement2.executeQuery("SELECT * FROM products");
+                    catRS = statement2.executeQuery("SELECT * FROM products");
                 %>
 
                 <%-- -------- Close Connection Code -------- --%>
@@ -213,7 +213,7 @@
                     // Close the Connection
                     conn.close();
                 } catch (Exception e) {
-                    out.println("Crash");
+                    out.println("Operation was not performed.");
                     //throw new RuntimeException(e);
                     // Wrap the SQL exception in a runtime exception to propagate
                     // it upwards
