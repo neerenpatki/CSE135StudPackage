@@ -187,6 +187,8 @@
 
                 <%
                     }
+                    rs = statement.executeQuery("SELECT * FROM products");
+                    catRS = statement.executeQuery("SELECT * FROM products");
                 %>
 
                 <%-- -------- Close Connection Code -------- --%>

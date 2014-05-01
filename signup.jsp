@@ -69,10 +69,10 @@
                     out.println("The username \"" + request.getParameter("username") + "\" has already " +"been taken. Please sign up again with a different username.");
                 } else if(e.getMessage().contains("EMPTY STRING")) {
                     out.println("You must enter something in the username field. Please try again.");
-                }else if(e.getMessage().contains("SPACES EXIST")){
+                } else if(e.getMessage().contains("SPACES EXIST")){
                     out.println("You may not have spaces in your username. Please try again.");
                 }
-                else{
+                else {
                     out.println("Your signup failed.");
                 }
         }

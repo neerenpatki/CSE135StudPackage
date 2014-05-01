@@ -106,7 +106,9 @@
                     </tr>
                 <%  }
                 }
-            }%>
+            }
+            rs = statement.executeQuery("SELECT * FROM products");
+            %>
 
             <%-- -------- Close Connection Code -------- --%>
             <%

@@ -134,7 +134,7 @@
             <%-- -------- Iteration Code -------- --%>
             <%
                 // Iterate over the ResultSet
-                while (rs.next()) {
+                while (rs != null && rs.next()) {
             %>
 
             <tr>
@@ -170,7 +170,7 @@
 
             <%
                 }
-            %>
+                rs = statement.executeQuery("SELECT * FROM products");            %>
 
             <%-- -------- Close Connection Code -------- --%>
             <%

@@ -41,16 +41,7 @@
 
                 String action = request.getParameter("action");
                 category = (String)session.getAttribute("category");  
-
                 Statement statement = conn.createStatement();
-                String selectSQL = "SELECT id FROM categories" +
-                " WHERE categories.name = " + category;
-
-                rs = statement.executeQuery(selectSQL);
-
-                if (rs.next()) {
-                    catID = rs.getInt("id");
-                }
 
                 Statement insertSt = conn.createStatement();
 
@@ -59,6 +50,8 @@
 
                     // Begin transaction
                     conn.setAutoCommit(false);
+                    catID = Integer.parseInt(request.getParameter("categoryOption"));
+
 
                     // Get the ID of the product that will be inserted
                     String insertSQL = "INSERT INTO products (name, SKU, price) VALUES ('" + 
@@ -119,6 +112,7 @@
                     conn.commit();
                     conn.setAutoCommit(true);
                 }
+
             %>
             <%-- -------- DELETE Code -------- --%>
             <%
@@ -165,9 +159,9 @@
                 // Create the statement
                 Statement statement2 = conn.createStatement();
                 String productRequest = request.getParameter("action");
-                if (!productRequest.equals("insert") && !productRequest.equals("update") &&
-                !productRequest.equals("delete") && !productRequest.equals("All Products") && 
-                !productRequest.equals("search")) {
+                if (productRequest != null && !productRequest.equals("insert") && 
+                !productRequest.equals("update") && !productRequest.equals("delete") && 
+                !productRequest.equals("All Products") && !productRequest.equals("search")) {
                     category = productRequest;
                     session.setAttribute("category", "'" + category + "'");
                 }
@@ -178,8 +172,9 @@
 
                 // Use the created statement to SELECT
                 // the student attributes FROM the Student table.
-                if (!productRequest.equals("All Products"))
+                if (productRequest != null && !productRequest.equals("All Products"))
                     rs = statement2.executeQuery(selectSQL2);
+
             %>
 
              <%-- SEARCH Statement Code --%>
@@ -197,6 +192,7 @@
             <% Statement catStatement = conn.createStatement();
                 String categorySQL = "SELECT name, id FROM categories";
                 catRS = catStatement.executeQuery(categorySQL);
+
             %>
 
             <form align="right" action="products.jsp">
@@ -214,13 +210,12 @@
                 <th>Product SKU</th>
                 <th>Product Price</th>
             </tr>
-            <% if (!action.equals("All Products")) {%>
             <tr>
                 <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
                     <th>&nbsp;</th>
                     <th>
-                     <SELECT NAME="category">
+                     <SELECT NAME="categoryOption">
                     <%
                         while (catRS != null && catRS.next()) { %>
                             <OPTION value=<%=catRS.getInt("id")%>><%=catRS.getString("name")%></OPTION>
@@ -233,10 +228,10 @@
                     <th><input type="submit" value="Insert"/></th>
                 </form>
             </tr>
-            <%}%>
                 
             <%-- -------- Iteration Code -------- --%>
             <%
+
                 // Iterate over the ResultSet
                 while (rs.next()) {
                     categorySQL = "SELECT name, id FROM categories";
@@ -302,6 +297,10 @@
 
             <%
                 }
+                rs = statement.executeQuery("SELECT * FROM products");
+                catRS = statement.executeQuery("SELECT * FROM products");
+                defaultValRS = statement.executeQuery("SELECT * FROM products");
+
             %>
 
             <%-- -------- Close Connection Code -------- --%>
@@ -330,11 +329,11 @@
                 //out.println(e);
                 // Wrap the SQL exception in a runtime exception to propagate
                 // it upwards
-                if (e.getMessage().contains("duplicate key value violates unique constraint")) {
+                /*if (e.getMessage().contains("duplicate key value violates unique constraint")) {
                     out.println("Another product already has the specified SKU number.");
                 } else if (e.getMessage().contains("For input string:")) {
                     out.println("The product's SKU and price must be numbers.");
-                }
+                }*/
 
                 out.println(" Unable to perform operation specified on product.");
                 //throw new RuntimeException(e);

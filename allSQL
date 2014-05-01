@@ -1,0 +1,152 @@
+CREATE TABLE users (
+	id		SERIAL PRIMARY KEY,
+	username	TEXT NOT NULL UNIQUE,
+	age		INTEGER NOT NULL,
+	role		TEXT NOT NULL,
+	state		TEXT NOT NULL
+);
+
+CREATE TABLE categories (
+	id		SERIAL PRIMARY KEY,
+	name		TEXT NOT NULL UNIQUE,
+	description	TEXT NOT NULL
+);
+
+CREATE TABLE products (
+	id		SERIAL PRIMARY KEY,
+	name		TEXT NOT NULL,
+	SKU		INTEGER NOT NULL UNIQUE CHECK (SKU >= 0),
+	price		DOUBLE PRECISION NOT NULL CHECK (price > 0)
+);
+
+CREATE TABLE createCategory (
+	id		SERIAL PRIMARY KEY,
+	owner		INTEGER REFERENCES owners (id) NOT NULL,
+	category	INTEGER REFERENCES categories (id) NOT NULL
+);
+
+CREATE TABLE hasProduct (
+	id		SERIAL PRIMARY KEY,
+	category	INTEGER REFERENCES categories (id) NOT NULL,
+	product		INTEGER REFERENCES products (id) NOT NULL
+);
+
+CREATE TRIGGER username_trigger
+BEFORE INSERT ON owners 
+BEGIN
+IF username = ""
+THEN username = NULL
+
+DELETE FROM owners WHERE TRUE
+
+SELECT * FROM owners
+
+DELETE FROM owners
+
+
+SELECT * FROM categories
+
+SELECT * FROM products
+
+SELECT * FROM hasProduct
+
+SELECT * FROM products WHERE id IN 
+(SELECT product FROM hasProduct WHERE category 
+IN (SELECT id FROM categories WHERE name = 'cat2'))
+
+SELECT products.id, products.name, products.SKU, products.price 
+FROM products, hasProduct, categories 
+WHERE categories.name = 'cat2'
+AND hasProduct.category = categories.id 
+AND products.id = hasProduct.product
+
+INSERT INTO products (name, SKU, price) VALUES ('prod1', 1, 1);
+INSERT INTO products (name, SKU, price) VALUES ('prod2', 2, 2);
+INSERT INTO products (name, SKU, price) VALUES ('prod3', 3, 3);
+
+INSERT INTO hasProduct (category, product) VALUES (9,1);
+INSERT INTO hasProduct (category, product) VALUES (10,2);
+INSERT INTO hasProduct (category, product) VALUES (11,3);
+
+SELECT * FROM owners
+
+SELECT * FROM hasProduct
+
+SELECT * FROM products
+
+SELECT * FROM categories
+
+SELECT * FROM createCategory
+
+CREATE TABLE hasProduct (
+	id		SERIAL PRIMARY KEY,
+	category	INTEGER REFERENCES categories (id) NOT NULL,
+	product		INTEGER REFERENCES products (id) NOT NULL
+);
+
+DROP TABLE hasProduct
+
+DELETE FROM products
+DELETE FROM hasProduct
+DELETE FROM categories
+
+INSERT INTO products (name, SKU, price) VALUES ('football', 1, 1);
+INSERT INTO products (name, SKU, price) VALUES ('tv', 2, 2);
+INSERT INTO products (name, SKU, price) VALUES ('sandwich', 3, 3);
+INSERT INTO products (name, SKU, price) VALUES ('jacket', 4, 4);
+
+INSERT INTO hasProduct (category, product) VALUES (26,25);
+INSERT INTO hasProduct (category, product) VALUES (27,26);
+INSERT INTO hasProduct (category, product) VALUES (28,27);
+INSERT INTO hasProduct (category, product) VALUES (29,28);
+
+SELECT MAX(id) FROM products
+
+SELECT * FROM products WHERE id IN (SELECT product FROM hasProduct)
+
+DELETE FROM products WHERE id=34
+
+INSERT INTO categories (name, description) VALUES ('Shoes', 'shoes') RETURNING id
+
+SELECT * FROM products WHERE id IN
+                (SELECT product FROM hasProduct WHERE category
+                IN (SELECT id FROM categories WHERE categories.name = categories.name))
+
+                SELECT * FROM products
+
+DELETE FROM products
+
+DROP TABLE products
+
+DROP TABLE hasProduct
+
+DELETE FROM hasProduct
+
+SELECT * FROM hasProduct
+
+CREATE TABLE products (
+	id		SERIAL PRIMARY KEY,
+	name		TEXT NOT NULL,
+	SKU		INTEGER NOT NULL UNIQUE CHECK (SKU >= 0),
+	price		DOUBLE PRECISION NOT NULL CHECK (price >= 0)
+);
+
+
+CREATE TABLE hasProduct (
+	id		SERIAL PRIMARY KEY,
+	category	INTEGER REFERENCES categories (id) NOT NULL,
+	product		INTEGER REFERENCES products (id) NOT NULL
+);
+
+SELECT * FROM categories
+
+INSERT INTO products (name, SKU, price) VALUES ('pizza', 1, 1) RETURNING id
+INSERT INTO hasProduct (category, product) VALUES (28,14);
+
+SELECT name FROM categories WHERE id IN (SELECT category FROM hasProduct WHERE product = 21)
+
+UPDATE hasProduct SET category = 28 WHERE product = 16
+
+SELECT * FROM products WHERE name LIKE '%ba%'
+
+           
