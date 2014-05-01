@@ -20,7 +20,12 @@
             Connection conn = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
+            ResultSet catRS = null;
+            ResultSet defaultValRS = null;
             String selectSQL2 = "";
+            if (session.getAttribute("category") == null) {
+                session.setAttribute("category", "categories.name");
+            }
             try {
                 // Registering Postgresql JDBC driver with the DriverManager
                 Class.forName("org.postgresql.Driver");
@@ -35,7 +40,7 @@
             <%
 
                 String action = request.getParameter("action");
-                category = (String)session.getAttribute("category");                
+                category = (String)session.getAttribute("category");  
 
                 Statement statement = conn.createStatement();
                 String selectSQL = "SELECT id FROM categories" +
@@ -102,6 +107,14 @@
                     pstmt.setInt(4, Integer.parseInt(request.getParameter("id")));
                     int rowCount = pstmt.executeUpdate();
 
+                    pstmt = conn
+                        .prepareStatement("UPDATE hasProduct SET category = ?" +
+                        " WHERE product = ?");
+
+                    pstmt.setInt(1, Integer.parseInt(request.getParameter("category")));
+                    pstmt.setInt(2, Integer.parseInt(request.getParameter("id")));
+                    rowCount = pstmt.executeUpdate();
+
                     // Commit transaction
                     conn.commit();
                     conn.setAutoCommit(true);
@@ -153,7 +166,8 @@
                 Statement statement2 = conn.createStatement();
                 String productRequest = request.getParameter("action");
                 if (!productRequest.equals("insert") && !productRequest.equals("update") &&
-                !productRequest.equals("delete") && !productRequest.equals("All Products")) {
+                !productRequest.equals("delete") && !productRequest.equals("All Products") && 
+                !productRequest.equals("search")) {
                     category = productRequest;
                     session.setAttribute("category", "'" + category + "'");
                 }
@@ -173,11 +187,16 @@
                 if (action != null && action.equals("search")) {
                     Statement searchSt = conn.createStatement();
                     String searchSQL = "SELECT * FROM products WHERE name LIKE '%" + 
-                    request.getParameter("searchValue") + "%'";
+                    request.getParameter("searchValue") + "%' AND id IN (SELECT product FROM hasProduct WHERE category IN (SELECT id FROM categories WHERE categories.name = " + (String)session.getAttribute("category") + "))";
                     rs = searchSt.executeQuery(searchSQL);
                 }
                 out.println("Hello " + session.getAttribute("userSession") + "!");
 
+            %>
+
+            <% Statement catStatement = conn.createStatement();
+                String categorySQL = "SELECT name, id FROM categories";
+                catRS = catStatement.executeQuery(categorySQL);
             %>
 
             <form align="right" action="products.jsp">
@@ -190,6 +209,7 @@
             <table border="1">
             <tr>
                 <th>Product ID</th>
+                <th>Category</th>
                 <th>Product Name</th>
                 <th>Product SKU</th>
                 <th>Product Price</th>
@@ -199,6 +219,14 @@
                 <form action="products.jsp" method="POST">
                     <input type="hidden" name="action" value="insert"/>
                     <th>&nbsp;</th>
+                    <th>
+                     <SELECT NAME="category">
+                    <%
+                        while (catRS != null && catRS.next()) { %>
+                            <OPTION value=<%=catRS.getInt("id")%>><%=catRS.getString("name")%></OPTION>
+                        <%}%>
+                        </SELECT>
+                    </th>
                     <th><input value="" name="name" size="50"/></th>
                     <th><input value="" name="SKU" size="30"/></th>
                     <th><input value="" name="price" size="30"/></th>
@@ -206,10 +234,13 @@
                 </form>
             </tr>
             <%}%>
+                
             <%-- -------- Iteration Code -------- --%>
             <%
                 // Iterate over the ResultSet
                 while (rs.next()) {
+                    categorySQL = "SELECT name, id FROM categories";
+                    catRS = catStatement.executeQuery(categorySQL);
             %>
 
             <tr>
@@ -220,6 +251,27 @@
                 <%-- Get the id --%>
                 <td>
                     <%=rs.getInt("id")%>
+                </td>
+
+                <%-- Get the Category --%>
+                <td>
+                     <SELECT NAME="category">
+                    <%
+                        Statement defaultSt = conn.createStatement();
+                        while (catRS != null && catRS.next()) {
+                            categorySQL = "SELECT name FROM categories WHERE id IN (SELECT category FROM " + "hasProduct WHERE product = " + rs.getInt("id") + " )";
+                            defaultValRS = defaultSt.executeQuery(categorySQL);
+                            if (defaultValRS.next()) {
+                                out.println(defaultValRS.getString("name"));
+                                if  (defaultValRS.getString("name").equals(catRS.getString("name"))) { %>
+                                    <OPTION value=<%=catRS.getInt("id")%> selected><%=catRS.getString("name")%></OPTION>
+                                <%} else { %>
+                                 <OPTION value=<%=catRS.getInt("id")%>><%=catRS.getString("name")%></OPTION>
+
+                                <%}
+                            }                            
+                       }%>
+                        </SELECT>
                 </td>
 
                 <%-- Get the product name --%>
@@ -256,6 +308,9 @@
             <%
                 // Close the ResultSet
                 rs.close();
+                catRS.close();
+                defaultValRS.close();
+
 
                 // Close the Statement
                 insertSt.close();
@@ -266,6 +321,7 @@
 
                 statement2.close();
                 updateSt.close();
+                catStatement.close();
 
 
                 // Close the Connection
