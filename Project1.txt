@@ -1,0 +1,21 @@
+Team 30:
+Neeren Patki
+Tim Chi
+Tyler Pollak
+
+Assumptions Made For Project 1:
+- Our categories, products, and username are case sensitive and we have made our search case sensitive as well.
+- We have not allowed the username of a user to contain spaces or be empty.
+- We have not allowed the category name and product name to be empty since it doesn't make sense to have a blank category and product.
+- We have assumed that users will follow the flow described on our wire diagram to reach certain pages.
+- We have allowed the category description to be empty since that is not necessarily needed to know what the category is.
+- If a customer tries to add non-positive quantities of products to his/her shopping cart, nothing will be added to the cart.
+- The product name has not been made unique since the SKU is the attribute that differentiates the products.
+- We have assumed that the 'Buy Shopping Cart' link is only visible to customers.
+- We have assumed that product SKU's and prices cannot be negative numbers.
+- We have assumed that no form validation is needed on the credit card form.
+- We have assumed that no numerical constraint is needed on age since that attribute is not being actively used.
+- We have chosen to make the shopping cart to be session-scoped.
+- If nothing is in the shopping cart and the customer tries to purchase something, they will see a blank shopping cart confirmation page. So nothing really happens in this case, but there is no validation for the shopping cart being empty.
+- We have assumed that products purchased by a customer do not need to be stored anywhere for Project 1.
+

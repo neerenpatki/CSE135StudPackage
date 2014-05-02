@@ -13,6 +13,7 @@
             <%-- Import the java.sql package --%>
             <%@ page import="java.sql.*"
             import="java.util.ArrayList"%>
+            <%="Hello " + session.getAttribute("userSession") + "!"%>
             <div align="center"><h2> Product Order Page </h2></div>
             <%-- -------- Open Connection Code -------- --%>
             <%
